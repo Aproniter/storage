@@ -1,0 +1,20 @@
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+}
+
+.project {
+    display: flex;
+    flex-direction: column;
+    background-color: aquamarine;
+}
+
+.chapter {
+    display: flex;
+    justify-content: space-between;
+}
+
+.haveNotes p {
+    background-color: brown;
+}
