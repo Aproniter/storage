@@ -177,6 +177,7 @@ class Document(models.Model):
     chapter = models.ForeignKey(
         Chapter,
         verbose_name='Раздел',
+        related_name='documents',
         on_delete=models.SET_NULL,
         null=True
     )

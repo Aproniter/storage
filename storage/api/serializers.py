@@ -29,9 +29,8 @@ class ChapterSerializer(serializers.ModelSerializer):
         model = Chapter
 
 
-
-class ProjectSerializer(serializers.ModelSerializer):    
-    owner = UserSerializer(many=False)    
+class ProjectSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(many=False)
 
     class Meta:
         exclude = ('chapters',)

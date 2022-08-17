@@ -4,10 +4,11 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import LimitOffsetPagination
+from django.http import FileResponse
 
 from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer
 from rest_framework.permissions import AllowAny
-from docs.models import Chapter, Project, Note
+from docs.models import Chapter, Project, Note, Document
 
 
 @api_view(['GET'])
@@ -16,10 +17,9 @@ def get_chapters(request):
     queryset = Chapter.objects.none()
     project_id = request.query_params.get('project')
     if project_id is not None:
-        queryset = get_object_or_404(
-            Project,
-            pk=project_id
-        ).chapters.all()
+        queryset = Chapter.objects.filter(
+            projects__id=project_id
+        )
     serializer = ChapterSerializer(
         queryset,
         partial=True,
@@ -43,6 +43,20 @@ def get_notes(request):
         many=True
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_file(request, project_pk, chapter_pk):
+    document = Document.objects.get(
+        project__id=project_pk,
+        chapter__id=chapter_pk
+    )
+    send_file = open(document.docfile,'rb')
+    response = FileResponse(send_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{document.title}";'
+    return response
+    
 
 
 class ProjectViewSet(ModelViewSet):

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from .views import ProjectViewSet, get_chapters, get_notes
+from .views import ProjectViewSet, get_chapters, get_notes, get_file
 
 app_name = 'api'
 
@@ -19,5 +19,10 @@ urlpatterns = [
         'notes/',
         get_notes,
         name='get_notes'
+    ),
+    path(
+        'get_file/<int:project_pk>/<int:chapter_pk>/',
+        get_file,
+        name='get_file'
     ),
 ]

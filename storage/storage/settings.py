@@ -18,6 +18,15 @@ ALLOWED_HOSTS = ['projectskvvant.ml','127.0.0.1', 'localhost']
 
 CSRF_TRUSTED_ORIGINS = ['https://projectskvvant.ml','https://127.0.0.1']
 
+CORS_ALLOW_HEADERS = [
+    'Content-Disposition',
+]
+
+CORS_EXPOSE_HEADERS = [
+    'Content-Disposition',
+    'Filename'
+]
+
 # CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:3000',
@@ -129,6 +138,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'DATETIME_FORMAT': "%Y-%m-%d (%H:%M:%S)",
 
 }

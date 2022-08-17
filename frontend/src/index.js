@@ -4,6 +4,23 @@ import './index.css';
 
 const API_ROOT = 'http://127.0.0.1:8000'
 
+function checkFileDownloadResponse (res) {
+    return new Promise((resolve, reject) => {
+      if (res.status < 400) {
+        return res.blob().then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'file';
+          document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+          a.click();    
+          a.remove();  //afterwards we remove the element again 
+        })
+      }
+      reject()
+    })
+  }
+
 class Note extends React.Component {
     render() {
         let className = 'note';
@@ -53,9 +70,14 @@ class Chapter extends React.Component {
             })
         }
     }
+    handleDownload(project, chapter){
+        fetch(
+            API_ROOT+'/api/v1/get_file/'+project+'/'+chapter+'/'
+        ).then(checkFileDownloadResponse)
+    }
     render() {
-        let className = 'chapter';
-        if(this.props.value.notes) {
+        let className = 'notes';
+        if((this.props.value.notes).length != 0) {
             className += ' haveNotes'
         }
         let notes = []
@@ -66,16 +88,45 @@ class Chapter extends React.Component {
                 />
             ))
         }
+        console.log(this.props.value)
         return (
-            <div
-            className={className}
-            key={this.props.value.id}>
-                <h4>{this.props.value.title}</h4>
-                <p
-                onClick={() => this.handleClick(this.props.value.notes)}
-                >Заметки
-                </p>
-            {notes}
+            <div>
+                <div
+                    className='chapter'
+                    key={this.props.value.id}
+                >
+                    <h4>{this.props.value.title}</h4>
+                    <div className='tools'>
+                        <div data-tooltip='Предпросмотр'>
+                            <svg
+                                className='viewing'
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512"><g id="_01_align_center" data-name="01 align center"><path d="M24,22.586l-6.262-6.262a10.016,10.016,0,1,0-1.414,1.414L22.586,24ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></g>
+                            </svg>
+                        </div>
+                        <div data-tooltip='Показать/скрыть заметки'>
+                            <svg
+                                className={className}
+                                onClick={
+                                    (this.props.value.notes).length != 0 
+                                    ? () => this.handleClick(this.props.value.notes) 
+                                    : () => false
+                                }
+                                xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
+                            </svg>
+                        </div>
+                        <div data-tooltip='Скачать документ'>
+                            <svg 
+                                className='download'
+                                onClick={
+                                    () =>
+                                    this.handleDownload(this.props.project_id, this.props.value.id)
+                                }
+                                xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M9.878,18.122a3,3,0,0,0,4.244,0l3.211-3.211A1,1,0,0,0,15.919,13.5l-2.926,2.927L13,1a1,1,0,0,0-1-1h0a1,1,0,0,0-1,1l-.009,15.408L8.081,13.5a1,1,0,0,0-1.414,1.415Z"/><path d="M23,16h0a1,1,0,0,0-1,1v4a1,1,0,0,1-1,1H3a1,1,0,0,1-1-1V17a1,1,0,0,0-1-1H1a1,1,0,0,0-1,1v4a3,3,0,0,0,3,3H21a3,3,0,0,0,3-3V17A1,1,0,0,0,23,16Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                {notes}
             </div>
         );
     }
@@ -148,14 +199,15 @@ class Project extends React.Component {
     render() {
         let chapters = []
         let notes = []
-        let notesClass = 'projectNotes'
-        if(this.props.value.notes) {
+        let notesClass = 'notes'
+        if((this.props.value.notes).length != 0) {
             notesClass += ' haveNotes';
         }
         if(this.state.projectChapters){
             chapters = this.state.projectChapters.map(item => (
                 <Chapter key={item.id}
                     value={item}
+                    project_id={this.props.value.id}
                 />
             ));
         }
@@ -167,23 +219,38 @@ class Project extends React.Component {
             ));
         }
         return (
-            <div>
-                <div 
-                    className='project'
-                    onClick={() => this.handleGetChapter(this.props.value.id)}
-                >
-                    <h2>{this.props.value.title}</h2>
-                    <h3>{this.props.value.owner.first_name}</h3>
-                    
+            <div className='project_row'>
+                <div className='project_row_header'>
+                    <span className='project_title'><p>{this.props.value.title}</p></span>
+                    <span className='project_stage'><p>{this.props.value.status}</p></span>
+                    <span className='project_address'><p>{this.props.value.address}</p></span>
+                    <span className='project_updated_at'><p>{this.props.value.updated_at}</p></span>
+                    <span className='project_owner'><p>{this.props.value.owner.first_name} {this.props.value.owner.last_name}</p></span>
+                    <div className='project_buttons'>
+                        <div data-tooltip='Показать/скрыть заметки'>
+                            <svg
+                                className={notesClass}
+                                onClick={
+                                    ((this.props.value.notes).length != 0) 
+                                    ? () => this.handleGetNotes(this.props.value.notes) 
+                                    : () => false
+                                }
+                                xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
+                            </svg>
+                        </div>
+                        <div data-tooltip='Показать/скрыть разделы'>
+                            <svg
+                                className='project_chapters'
+                                onClick={() => this.handleGetChapter(this.props.value.id)}
+                                xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M1,6H23a1,1,0,0,0,0-2H1A1,1,0,0,0,1,6Z"/><path d="M23,9H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,19H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,14H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <div 
-                    className={notesClass}
-                    onClick={() => this.handleGetNotes(this.props.value.notes)}
-                >
-                    <p>Заметки</p>
+                <div className='project_other_data'>
+                    {notes}
+                    {chapters}
                 </div>
-                {notes}
-                {chapters}
             </div>
         );
     }
@@ -234,13 +301,20 @@ class Board extends React.Component {
             return <div>Загрузка...</div>;
         } else {
             return (
-                <ul>
+                <div className='projects_list'>
+                    {/* <div className='projects_header'>
+                        <span className='project_header_title'><p>Название</p></span>
+                        <span className='project_header_stage'><p>Стадия</p></span>
+                        <span className='project_header_address'><p>Адрес</p></span>
+                        <span className='project_header_updated_at'><p>Последнее обновление</p></span>
+                        <span className='project_header_owner'><p>ГИП</p></span>
+                        <span className='project_header_notes'><p>Заметки</p></span>
+                        <span className='project_header_chapters'><p>Разделы</p></span>
+                    </div> */}
                     {projects.map(item => (
-                        <div>
-                            {this.renderProject(item)}
-                        </div>
+                        this.renderProject(item)
                     ))}
-                </ul>
+                </div>
             );
         }
     }
@@ -249,10 +323,8 @@ class Board extends React.Component {
 class Table extends React.Component {
     render() {
         return(
-            <div className='projects-table'>
-                <div className='projects-table-board'>
-                    <Board />
-                </div>
+            <div className='container'>
+                <Board />
             </div>
         );
     }
