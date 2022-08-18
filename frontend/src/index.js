@@ -12,9 +12,9 @@ function checkFileDownloadResponse (res) {
           const a = document.createElement('a');
           a.href = url;
           a.download = 'file';
-          document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+          document.body.appendChild(a);
           a.click();    
-          a.remove();  //afterwards we remove the element again 
+          a.remove();
         })
       }
       reject()
@@ -70,10 +70,25 @@ class Chapter extends React.Component {
             })
         }
     }
-    handleDownload(project, chapter){
+    handleDownload(project, chapter, filename){
         fetch(
             API_ROOT+'/api/v1/get_file/'+project+'/'+chapter+'/'
-        ).then(checkFileDownloadResponse)
+        ).then(res => new Promise((resolve, reject) => {
+            if (res.status < 400) {
+              return res.blob().then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename+'.pdf';
+                document.body.appendChild(a);
+                a.click();    
+                a.remove();
+              })
+            }
+            reject()
+          }))
+
+ 
     }
     render() {
         let className = 'notes';
@@ -88,7 +103,6 @@ class Chapter extends React.Component {
                 />
             ))
         }
-        console.log(this.props.value)
         return (
             <div>
                 <div
@@ -119,7 +133,7 @@ class Chapter extends React.Component {
                                 className='download'
                                 onClick={
                                     () =>
-                                    this.handleDownload(this.props.project_id, this.props.value.id)
+                                    this.handleDownload(this.props.project_id, this.props.value.id, this.props.value.title)
                                 }
                                 xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M9.878,18.122a3,3,0,0,0,4.244,0l3.211-3.211A1,1,0,0,0,15.919,13.5l-2.926,2.927L13,1a1,1,0,0,0-1-1h0a1,1,0,0,0-1,1l-.009,15.408L8.081,13.5a1,1,0,0,0-1.414,1.415Z"/><path d="M23,16h0a1,1,0,0,0-1,1v4a1,1,0,0,1-1,1H3a1,1,0,0,1-1-1V17a1,1,0,0,0-1-1H1a1,1,0,0,0-1,1v4a3,3,0,0,0,3,3H21a3,3,0,0,0,3-3V17A1,1,0,0,0,23,16Z"/>
                             </svg>
