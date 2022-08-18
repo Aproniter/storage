@@ -9,6 +9,7 @@ from django.http import FileResponse
 from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer
 from rest_framework.permissions import AllowAny
 from docs.models import Chapter, Project, Note, Document
+from .services import get_images_from_pdf, delete_preview_folder
 
 
 @api_view(['GET'])
@@ -56,7 +57,24 @@ def get_file(request, project_pk, chapter_pk):
     response = FileResponse(send_file, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{document.title}";'
     return response
-    
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_preview(request, project_pk, chapter_pk):
+    document = Document.objects.get(
+        project__id=project_pk,
+        chapter__id=chapter_pk
+    )
+    files = get_images_from_pdf(document.docfile, document.title)
+    return Response({'files': files}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def delete_preview(request, folder_name):
+    delete_preview_folder(folder_name)
+    return Response(status=status.HTTP_200_OK)
 
 
 class ProjectViewSet(ModelViewSet):

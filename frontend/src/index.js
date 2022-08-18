@@ -1,25 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import Slider from 'react-slick';
 import './index.css';
 
 const API_ROOT = 'http://127.0.0.1:8000'
 
-function checkFileDownloadResponse (res) {
-    return new Promise((resolve, reject) => {
-      if (res.status < 400) {
-        return res.blob().then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'file';
-          document.body.appendChild(a);
-          a.click();    
-          a.remove();
-        })
-      }
-      reject()
-    })
-  }
 
 class Note extends React.Component {
     render() {
@@ -41,7 +26,10 @@ class Chapter extends React.Component {
             error: null,
             isLoaded: false,
             chapterNotes: [],
+            documentImages: [],
+            documentsIsVisible: false,
             notesIsVisible: false,
+            downloading: false
         };
     }
     handleClick(item){
@@ -53,7 +41,7 @@ class Chapter extends React.Component {
                   this.setState({
                     isLoaded: true,
                     chapterNotes: result,
-                    notesIsVisible: true
+                    notesIsVisible: true,
                   });
                 },
                 (error) => {
@@ -87,12 +75,47 @@ class Chapter extends React.Component {
             }
             reject()
           }))
-
- 
+    }
+    handleImages(project, chapter){
+        if(!this.state.documentsIsVisible){
+            this.setState({
+                downloading: true,
+            })
+            fetch(API_ROOT+'/api/v1/get_preview/'+project+'/'+chapter+'/'
+            ).then(res => res.json())
+            .then(
+            (result) => {
+                this.setState({
+                isLoaded: true,
+                documentImages: result.files,
+                notesIsVisible: true,
+                documentsIsVisible: true,
+                downloading: false,
+                });
+            },
+            (error) => {
+                this.setState({
+                isLoaded: true,
+                downloading: false,
+                documentsIsVisible: false,
+                error
+                });
+            }
+            );
+        } else {
+            let delete_dir = this.state.documentImages[0].data.split('/')[1]
+            this.setState({
+                documentImages: [],
+                documentsIsVisible: false
+            })
+            fetch(
+                API_ROOT+'/api/v1/delete_preview/' + delete_dir + '/'
+            )
+        }
     }
     render() {
         let className = 'notes';
-        if((this.props.value.notes).length != 0) {
+        if((this.props.value.notes).length !== 0) {
             className += ' haveNotes'
         }
         let notes = []
@@ -103,8 +126,60 @@ class Chapter extends React.Component {
                 />
             ))
         }
+        let images
+        if(this.state.documentImages){
+            const data = [].concat(this.state.documentImages)
+            .sort((a,b) => a.id - b.id);
+            const settings = {
+                dots: true,
+                infinite: true,
+                speed: 500,
+                slidesToShow: 1,
+                swipeToSlide: true,
+                slidesToScroll: 1,
+                appendDots: dots => (
+                    <div
+                      style={{
+                        backgroundColor: '#e5cba4',
+                        borderRadius: '2px',
+                        padding: '10px'
+                      }}
+                    >
+                      <ul style={{margin:'0px'}}> {dots} </ul>
+                    </div>
+                  ),
+                  customPaging: i => (
+                    <div
+                      style={{
+                        width: '30px',
+                        // color: 'blue',
+                        border: "1px blue solid"
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                  )
+            };
+            images = (
+            <div className='slider'>
+                <Slider {...settings}>
+                    {data.map((item, idx) => (
+                    <div key={item.id} className='slide'>
+                        <a style={{width:'100%'}} rel="noreferrer" target='_blank' href={API_ROOT + '/media/' + item.data}><img src={API_ROOT + '/media/' + item.data} alt='' height='100%'/></a>
+                    </div>
+                    ))}
+                </Slider>
+            </div>
+            )
+        }
+        let downloading
+        if(this.state.downloading){
+            downloading = <div className='downloading'></div>
+        } else {
+            downloading = ''
+        }
         return (
-            <div>
+            <div style={{display: 'flex', flexDirection: 'column'}}>
                 <div
                     className='chapter'
                     key={this.props.value.id}
@@ -114,6 +189,7 @@ class Chapter extends React.Component {
                         <div data-tooltip='Предпросмотр'>
                             <svg
                                 className='viewing'
+                                onClick={() => this.handleImages(this.props.project_id, this.props.value.id)}
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512"><g id="_01_align_center" data-name="01 align center"><path d="M24,22.586l-6.262-6.262a10.016,10.016,0,1,0-1.414,1.414L22.586,24ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></g>
                             </svg>
                         </div>
@@ -121,7 +197,7 @@ class Chapter extends React.Component {
                             <svg
                                 className={className}
                                 onClick={
-                                    (this.props.value.notes).length != 0 
+                                    (this.props.value.notes).length !== 0 
                                     ? () => this.handleClick(this.props.value.notes) 
                                     : () => false
                                 }
@@ -141,6 +217,8 @@ class Chapter extends React.Component {
                     </div>
                 </div>
                 {notes}
+                {images}
+                {downloading}
             </div>
         );
     }
@@ -214,7 +292,7 @@ class Project extends React.Component {
         let chapters = []
         let notes = []
         let notesClass = 'notes'
-        if((this.props.value.notes).length != 0) {
+        if((this.props.value.notes).length !== 0) {
             notesClass += ' haveNotes';
         }
         if(this.state.projectChapters){
@@ -245,7 +323,7 @@ class Project extends React.Component {
                             <svg
                                 className={notesClass}
                                 onClick={
-                                    ((this.props.value.notes).length != 0) 
+                                    ((this.props.value.notes).length !== 0) 
                                     ? () => this.handleGetNotes(this.props.value.notes) 
                                     : () => false
                                 }
@@ -316,15 +394,6 @@ class Board extends React.Component {
         } else {
             return (
                 <div className='projects_list'>
-                    {/* <div className='projects_header'>
-                        <span className='project_header_title'><p>Название</p></span>
-                        <span className='project_header_stage'><p>Стадия</p></span>
-                        <span className='project_header_address'><p>Адрес</p></span>
-                        <span className='project_header_updated_at'><p>Последнее обновление</p></span>
-                        <span className='project_header_owner'><p>ГИП</p></span>
-                        <span className='project_header_notes'><p>Заметки</p></span>
-                        <span className='project_header_chapters'><p>Разделы</p></span>
-                    </div> */}
                     {projects.map(item => (
                         this.renderProject(item)
                     ))}
