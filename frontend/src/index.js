@@ -103,14 +103,10 @@ class Chapter extends React.Component {
             }
             );
         } else {
-            let delete_dir = this.state.documentImages[0].data.split('/')[1]
             this.setState({
                 documentImages: [],
                 documentsIsVisible: false
             })
-            fetch(
-                API_ROOT+'/api/v1/delete_preview/' + delete_dir + '/'
-            )
         }
     }
     render() {

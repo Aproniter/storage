@@ -1,6 +1,12 @@
 from django.db import models
+from django.db.models import signals
+import docs.tasks as tasks
 
 from users.models import User
+
+
+# def test_celery(sender, instance, signal, *args, **kwargs):
+#     tasks.test.delay(instance.pk)
 
 
 class Project(models.Model):
@@ -217,6 +223,15 @@ class Document(models.Model):
         related_name='documents',
         blank=True
     )
+    preview_folder = models.ForeignKey(
+        'Preview',
+        verbose_name='Файлы предпросмотра',
+        related_name='document',
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата создания',
@@ -232,3 +247,27 @@ class Document(models.Model):
 
     def __str__(self):
         return f'{self.project} - {self.title}'
+
+
+class Preview(models.Model):
+    path = models.TextField(
+        verbose_name='Путь до папки',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания',
+    )
+    call_rating = models.IntegerField(
+        verbose_name='Рейтинг обращений',
+        default=5,
+    )
+
+    class Meta:
+        verbose_name = 'Файлы предпросмотра'
+        verbose_name_plural = 'Файлы предпросмотра'
+
+    def __str__(self):
+        return self.path
+
+
+# signals.post_save.connect(test_celery, sender=Preview)

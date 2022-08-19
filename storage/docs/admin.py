@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    Project, Note, Document, Chapter
+    Project, Note, Document, Chapter, Preview
 )
 
 
@@ -32,3 +32,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Note, NoteAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(Chapter, ChapterAdmin)
+admin.site.register(Preview)
