@@ -2,6 +2,9 @@ import os
 
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
+
+from rest_framework.settings import api_settings
 
 
 load_dotenv()
@@ -44,9 +47,9 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
     'docs.apps.DocsConfig',
-    'rest_framework.authtoken',
     'django_filters',
     'corsheaders',
+    'knox',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -121,7 +124,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'images/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -134,13 +137,24 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'knox.auth.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DATETIME_FORMAT': "%Y-%m-%d (%H:%M:%S)",
 }
+
+REST_KNOX = {
+  'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
+  'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+  'TOKEN_TTL': timedelta(hours=10),
+  'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+  'TOKEN_LIMIT_PER_USER': None,
+  'AUTO_REFRESH': False,
+  'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+}
+
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = '6379'

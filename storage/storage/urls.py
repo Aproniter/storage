@@ -4,7 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-urlpatterns = [    
+urlpatterns = [
+    path('api/auth/', include('knox.urls')),
     path('api/v1/', include('api.urls')),
     path('admin/', admin.site.urls),
 ]

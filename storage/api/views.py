@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import LimitOffsetPagination
 from django.http import FileResponse
+from django.conf import settings
 
 from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer
 from rest_framework.permissions import AllowAny
@@ -49,7 +50,8 @@ def get_notes(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_file(request, project_pk, chapter_pk):
-    document = Document.objects.get(
+    document = get_object_or_404(
+        Document,
         project__id=project_pk,
         chapter__id=chapter_pk
     )
@@ -62,7 +64,8 @@ def get_file(request, project_pk, chapter_pk):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_preview(request, project_pk, chapter_pk):
-    document = Document.objects.get(
+    document = get_object_or_404(
+        Document,
         project__id=project_pk,
         chapter__id=chapter_pk
     )
