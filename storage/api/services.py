@@ -1,6 +1,7 @@
 import os
 import fitz
 
+
 from django.conf import settings
 
 from docs.models import Preview
@@ -9,9 +10,14 @@ from docs.models import Preview
 def get_list_files(dir_images):
     files = [{
         'id': value.split('/')[-1].replace('.jpg',''), 
-        'data': f'{dir_images}/{value}'
+        'data': f'{dir_images.replace(settings.MEDIA_ROOT + "/", "")}/{value}'
     } for value in os.listdir(dir_images)]
     return files
+
+
+def create_image(dir_images, page):
+    pix = page.get_pixmap(dpi=50)
+    pix.save(f'{dir_images}/{page.number}.jpg')
 
 
 def get_images_from_pdf(document):
@@ -21,20 +27,22 @@ def get_images_from_pdf(document):
         list_files = os.listdir(document.preview_folder.path)
         return get_list_files(document.preview_folder.path)
     dir_images = os.path.join(
-        settings.MEDIA_URL,
-        os.getenv('IMAGES'),
+        settings.MEDIA_ROOT,
         document.project.title,
         document.chapter.title,
         document.title.replace('.pdf', '')
     )
-    os.makedirs(dir_images)
+    os.makedirs(dir_images, exist_ok=True)
+    
+    doc = fitz.open(document.docfile)
+
+    for page in doc:
+        create_image(dir_images, page)
+
     preview, status = Preview.objects.get_or_create(
         path=dir_images
     )
     document.preview_folder = preview
     document.save()
-    doc = fitz.open(document.docfile)
-    for page in doc:
-        pix = page.get_pixmap(dpi=50)
-        pix.save(f'{dir_images}/{page.number}.jpg')
+
     return get_list_files(dir_images)
