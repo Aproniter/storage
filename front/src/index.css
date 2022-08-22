@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[data-tooltip] {
+    position: relative;
+   }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+width: 300px;
+right: 0; top: 0;
+background: #3989c9;
+color: #fff;
+padding: 0.5em;
+box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+pointer-events: none;
+opacity: 0;
+transition: 1s;
+} 
+[data-tooltip]:hover::after {
+opacity: 1;
+top: 2em;
+}
+
+.project_header span::after {
+    width: 1px;
+    content: "";
+    height: 50%;
+    background: radial-gradient(#889496, transparent);
+    position: absolute;
+    right: 0;
+    top: 25%;
+}

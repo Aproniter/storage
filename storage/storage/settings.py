@@ -17,9 +17,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', '*')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['projectskvvant.ml','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split('||')
 
-CSRF_TRUSTED_ORIGINS = ['https://projectskvvant.ml','https://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split('||')
 
 CORS_ALLOW_HEADERS = [
     'Content-Disposition',
@@ -31,10 +31,7 @@ CORS_EXPOSE_HEADERS = [
 ]
 
 # CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000'
-]
+CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST').split('||')
 
 INSTALLED_APPS = [
     'django.contrib.admin',

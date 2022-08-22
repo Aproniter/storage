@@ -1,0 +1,39 @@
+export interface IProject {
+    id: number
+    title: string
+    address: string
+    status: string
+    active: boolean
+    created_at: string
+    updated_at: string
+    owner: IOwner
+    editors: number[]
+    notes: number[]
+    viewers: number[]
+}
+
+export interface IOwner {
+    id: number
+    email: string
+    username: string
+    first_name: string
+    last_name: string
+}
+
+export interface IChapter {
+    id:number
+    title: string
+    notes: number[]
+}
+
+export interface INote {
+    id:number
+    title: string
+    text: string
+    note_type: string
+    color: string
+    created_at: string
+    updated_at: string
+    author: IOwner
+    docfile: string
+}
