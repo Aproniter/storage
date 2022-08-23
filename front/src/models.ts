@@ -37,3 +37,8 @@ export interface INote {
     author: IOwner
     docfile: string
 }
+
+export interface IImage {
+    id: number
+    data: string
+}

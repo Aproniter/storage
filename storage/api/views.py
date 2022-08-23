@@ -70,7 +70,7 @@ def get_preview(request, project_pk, chapter_pk):
         chapter__id=chapter_pk
     )
     files = get_images_from_pdf(document)
-    return Response({'files': files}, status=status.HTTP_200_OK)
+    return Response(files, status=status.HTTP_200_OK)
 
 
 class ProjectViewSet(ModelViewSet):

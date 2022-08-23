@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import { IProject } from '../models';
 
 const BaseURL = process.env.REACT_APP_BASE_URL

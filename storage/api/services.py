@@ -9,7 +9,7 @@ from docs.models import Preview
 
 def get_list_files(dir_images):
     files = [{
-        'id': value.split('/')[-1].replace('.jpg',''), 
+        'id': int(value.split('/')[-1].replace('.jpg','')), 
         'data': f'{dir_images.replace(settings.MEDIA_ROOT + "/", "")}/{value}'
     } for value in os.listdir(dir_images)]
     return files

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Project } from './components/Project';
 import { useProjects } from './hooks/project';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function App() {
   const { projects } = useProjects()
