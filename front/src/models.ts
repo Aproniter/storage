@@ -24,6 +24,7 @@ export interface IChapter {
     id:number
     title: string
     notes: number[]
+    docfiles: number[]
 }
 
 export interface INote {
@@ -41,4 +42,17 @@ export interface INote {
 export interface IImage {
     id: number
     data: string
+}
+
+export interface IDocfile{
+    id:number
+    title: string
+    chapter?: IChapter
+    subchapter?: string
+    part?: string
+    book?: number
+    code?: string
+    version?: number
+    notes?: INote[]
+    updated_at: string
 }

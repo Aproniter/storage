@@ -21,6 +21,8 @@ def create_image(dir_images, page):
 
 
 def get_images_from_pdf(document):
+    if document.title.split('.')[-1] != 'pdf':
+        return []
     if document.preview_folder:
         document.preview_folder.call_rating += 1
         document.preview_folder.save()

@@ -7,7 +7,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.http import FileResponse
 from django.conf import settings
 
-from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer
+from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer, DocfileSerializer
 from rest_framework.permissions import AllowAny
 from docs.models import Chapter, Project, Note, Document
 from .services import get_images_from_pdf
@@ -49,11 +49,27 @@ def get_notes(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_file(request, project_pk, chapter_pk):
+def get_docfiles(request):
+    queryset = Document.objects.none()
+    documents_id = request.query_params.get('ids')
+    if documents_id is not None:
+        queryset = Document.objects.filter(
+            id__in=documents_id.split(',')
+        )
+    serializer = DocfileSerializer(
+        queryset,
+        partial=True,
+        many=True
+    )
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_file(request, pk):
     document = get_object_or_404(
         Document,
-        project__id=project_pk,
-        chapter__id=chapter_pk
+        id=pk
     )
     send_file = open(document.docfile,'rb')
     response = FileResponse(send_file, content_type='application/pdf')
@@ -63,11 +79,10 @@ def get_file(request, project_pk, chapter_pk):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_preview(request, project_pk, chapter_pk):
+def get_preview(request, pk):
     document = get_object_or_404(
         Document,
-        project__id=project_pk,
-        chapter__id=chapter_pk
+        id=pk
     )
     files = get_images_from_pdf(document)
     return Response(files, status=status.HTTP_200_OK)

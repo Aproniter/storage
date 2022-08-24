@@ -3,7 +3,7 @@ from rest_framework.routers import SimpleRouter
 
 from .views import (
     ProjectViewSet, get_chapters, get_notes, get_file, 
-    get_preview
+    get_preview, get_docfiles
 )
 
 app_name = 'api'
@@ -24,12 +24,17 @@ urlpatterns = [
         name='get_notes'
     ),
     path(
-        'get_file/<int:project_pk>/<int:chapter_pk>/',
+        'docfiles/',
+        get_docfiles,
+        name='get_docfiles'
+    ),
+    path(
+        'get_file/<int:pk>/',
         get_file,
         name='get_file'
     ),
     path(
-        'get_preview/<int:project_pk>/<int:chapter_pk>/',
+        'get_preview/<int:pk>/',
         get_preview,
         name='get_preview'
     )

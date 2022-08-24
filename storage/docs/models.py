@@ -199,7 +199,7 @@ class Document(models.Model):
         blank=True,
         null=True
     )
-    book = models.IntegerField(
+    book = models.FloatField(
         verbose_name='Том',
         blank=True,
         null=True
