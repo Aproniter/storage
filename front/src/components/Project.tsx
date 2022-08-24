@@ -10,6 +10,10 @@ interface ProjectProps {
     project: IProject
 }
 
+const headers = {
+    'content-type': 'application/json',
+}
+
 export function Project({ project }: ProjectProps) {
     const haveNotes = project.notes.length > 0
     const iconColorClassName = haveNotes ? 'fill-red-500' : 'fill-grey-500'
@@ -21,15 +25,29 @@ export function Project({ project }: ProjectProps) {
 
     async function fetchChapters(proj: number) {
         if(chapters.length === 0){
-            const responce = await axios.get<IChapter[]>(BaseURL+'/chapters/?project='+ proj)
+            const token = window.localStorage.getItem('token')
+            const responce = await axios.get<IChapter[]>(
+                `${BaseURL}/chapters/?project=${proj}`,
+                { headers: {
+                        ...headers, 
+                        'authorization': `Token ${token}`
+                }}
+            );
             setChapters(responce.data)
         } 
         setChaptersVisible (prev => !prev)
     }
 
     async function fetchNotes(ids: number[]) {
+        const token = window.localStorage.getItem('token')
         if(notes.length === 0){
-            const responce = await axios.get<INote[]>(BaseURL+'/notes/?ids='+ids.join(','))
+            const responce = await axios.get<INote[]>(
+                `${BaseURL}/notes/?ids=${ids.join(',')}`,
+                { headers : {
+                    ...headers, 
+                    'authorization': `Token ${token}`
+                }}
+            );
             setNotes(responce.data)
         } 
         setNotesVisible (prev => !prev)

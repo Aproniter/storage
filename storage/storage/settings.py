@@ -22,7 +22,12 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split('||')
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split('||')
 
 CORS_ALLOW_HEADERS = [
-    'Content-Disposition',
+    'content-disposition', 
+    'accept-encoding',
+    'content-type', 
+    'accept',
+    'origin', 
+    'authorization'
 ]
 
 CORS_EXPOSE_HEADERS = [

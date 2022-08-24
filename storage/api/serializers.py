@@ -51,3 +51,15 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('chapters',)
         model = Project
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.CharField(
+        max_length=150
+    )
+    password = serializers.CharField(
+        max_length=150
+    )
+
+    class Meta:
+        fields = ('token', 'email', 'password')

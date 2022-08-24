@@ -4,17 +4,25 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework import permissions
 from django.http import FileResponse
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import login
 
-from .serializers import ChapterSerializer, ProjectSerializer, NoteSerializer, DocfileSerializer
-from rest_framework.permissions import AllowAny
+from knox.views import LoginView as KnoxLoginView
+
+from .serializers import (
+    ChapterSerializer, ProjectSerializer, NoteSerializer, 
+    DocfileSerializer, LoginSerializer)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from docs.models import Chapter, Project, Note, Document
 from .services import get_images_from_pdf
+from users.models import User
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_chapters(request):
     queryset = Chapter.objects.none()
     project_id = request.query_params.get('project')
@@ -31,7 +39,7 @@ def get_chapters(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_notes(request):
     queryset = Note.objects.none()
     notes_id = request.query_params.get('ids')
@@ -48,7 +56,7 @@ def get_notes(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_docfiles(request):
     queryset = Document.objects.none()
     documents_id = request.query_params.get('ids')
@@ -65,7 +73,7 @@ def get_docfiles(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_file(request, pk):
     document = get_object_or_404(
         Document,
@@ -78,7 +86,7 @@ def get_file(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_preview(request, pk):
     document = get_object_or_404(
         Document,
@@ -93,3 +101,24 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [AllowAny]
     queryset = Project.objects.all()
+
+
+class LoginView(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(
+            User, 
+            email=serializer.validated_data.get('email'),
+        )
+        if not check_password(
+            serializer.validated_data.get('password'), user.password
+        ):
+            return Response(
+                {'errors': 'Неверный пароль.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        login(request, user)
+        return super(LoginView, self).post(request, format=None)

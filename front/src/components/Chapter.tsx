@@ -7,6 +7,10 @@ import { Docfile } from './Docfile';
 
 const BaseURL = process.env.REACT_APP_BASE_URL;
 
+const headers = {
+    'content-type': 'application/json',
+}
+
 interface ChapterProps {
     project: IProject
     chapter: IChapter
@@ -22,16 +26,30 @@ export function Chapter({ chapter }: ChapterProps) {
     const [docfilesVisible, setDocfilesVisible] = useState(false);
 
     async function fetchNotes(ids: number[]) {
+        const token = window.localStorage.getItem('token')
         if(notes.length === 0){
-            const responce = await axios.get<INote[]>(BaseURL+'/notes/?ids='+ids.join(','))
+            const responce = await axios.get<INote[]>(
+                `${BaseURL}/notes/?ids=${ids.join(',')}`,
+                { headers : {
+                    ...headers, 
+                    'authorization': `Token ${token}`
+                }}
+            );
             setNotes(responce.data)
         }
         setNotesVisible (prev => !prev)
     };
 
     async function fetchDocfiles(ids: number[]) {
+        const token = window.localStorage.getItem('token')
         if(notes.length === 0){
-            const responce = await axios.get<IDocfile[]>(BaseURL+'/docfiles/?ids='+ids.join(','))
+            const responce = await axios.get<IDocfile[]>(
+                `${BaseURL}/docfiles/?ids=${+ids.join(',')}`,
+                { headers : {
+                    ...headers, 
+                    'authorization': `Token ${token}`
+                }}
+            );
             setDocfiles(responce.data)
         }
         setDocfilesVisible (prev => !prev)

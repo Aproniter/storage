@@ -13,6 +13,9 @@ interface DocfileProps {
     docfile: IDocfile
 }
 
+const headers = {
+    'content-type': 'application/json',
+}
 
 const BaseURL = process.env.REACT_APP_BASE_URL
 
@@ -30,8 +33,15 @@ export function Docfile({docfile}: DocfileProps) {
     async function fetchNotes(ids: INote[] | undefined) {
         if(notes.length === 0){
             if(ids){
+                const token = window.localStorage.getItem('token')
                 const params = ids.join(',')
-                const responce = await axios.get<INote[]>(BaseURL+'/notes/?ids='+params)
+                const responce = await axios.get<INote[]>(
+                    `${BaseURL}/notes/?ids=${params}`,
+                    { headers: {
+                            ...headers, 
+                            'authorization': `Token ${token}`
+                    }}
+                )
                 setNotes(responce.data)
             }
         }
@@ -41,7 +51,14 @@ export function Docfile({docfile}: DocfileProps) {
     async function fetchPreview(docfile_id: number) {
         setDownloading(true)
         if(images.length === 0){
-            const responce = await axios.get<IImage[]>(BaseURL+'/get_preview/'+docfile_id+'/')
+            const token = window.localStorage.getItem('token')
+            const responce = await axios.get<IImage[]>(
+                `${BaseURL}/get_preview/${docfile_id}/`,
+                { headers: {
+                    ...headers, 
+                    'authorization': `Token ${token}`
+            }}
+            )
             if(responce.data.length === 0){
                 setDownloading(false)
                 return
@@ -53,9 +70,16 @@ export function Docfile({docfile}: DocfileProps) {
     };
 
     async function getDocumentFile(docfile_id: number, filename: string) {
-        return axios.get(BaseURL+'/get_file/'+docfile_id+'/', {
-            responseType: 'blob',
-        })        
+        const token = window.localStorage.getItem('token')
+        return axios.get(
+            `${BaseURL}/get_file/${docfile_id}/`, 
+            {
+                responseType: 'blob',
+                headers: {
+                    ...headers, 
+                    'authorization': `Token ${token}`
+                }
+            })
         .then(response => new Blob([response.data]))
         .then(blob => saveAs(blob, filename))
     };
