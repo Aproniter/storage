@@ -31,20 +31,18 @@ export function Docfile({project, docfile}: DocfileProps) {
     const [notes, setNotes] = useState<INote[]>([]);
     const [notesVisible, setNotesVisible] = useState(false);
 
-    async function fetchNotes(ids: INote[] | undefined) {
+    async function fetchNotes() {
         if(notes.length === 0){
-            if(ids){
-                const token = window.localStorage.getItem('token')
-                const params = ids.join(',')
-                const responce = await axios.get<INote[]>(
-                    `${BaseURL}/notes/?ids=${params}`,
-                    { headers: {
-                            ...headers, 
-                            'authorization': `Token ${token}`
-                    }}
-                )
-                setNotes(responce.data)
-            }
+            const token = window.localStorage.getItem('token')
+            const responce = await axios.get<INote[]>(
+                `${BaseURL}/projects/${project.id}/get_notes/?docfile=${docfile.id}`,
+                { headers: {
+                        ...headers, 
+                        'authorization': `Token ${token}`
+                }}
+            )
+            setNotes(responce.data)
+            
         }
         setNotesVisible (prev => !prev)
     };
@@ -102,7 +100,7 @@ export function Docfile({project, docfile}: DocfileProps) {
                 <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Показать/скрыть заметки'>
                     <svg
                         className={iconClasses.join(' ')}
-                        onClick={haveNotes ? () => fetchNotes(docfile.notes) : () => false}
+                        onClick={haveNotes ? () => fetchNotes() : () => false}
                         xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
                     </svg>
                 </div>

@@ -29,7 +29,7 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [AdminOwnerEditorOrViewerReadOnly]
     queryset = Project.objects.all()
-    
+
     def get_queryset(self):
         return self.request.user.projects_viewer.all()
 
@@ -63,12 +63,18 @@ class ProjectViewSet(ModelViewSet):
         )
         self.check_object_permissions(self.request, obj)
         chapter_id = request.GET.get('chapter', None)
-        print(chapter_id)
-        notes_queryset = (
-            obj.notes.all() 
-            if not chapter_id
-            else get_object_or_404(Chapter, id=chapter_id).notes.all()
-        )
+        docfile_id = request.GET.get('docfile', None)
+        params = chapter_id or docfile_id
+        if chapter_id:
+            notes_queryset = get_object_or_404(
+                Chapter, id=chapter_id
+            ).notes.all()
+        elif docfile_id:
+            notes_queryset = get_object_or_404(
+                Document, id=docfile_id
+            ).notes.all()
+        else:
+            notes_queryset = obj.notes.all()
         serializer = NoteSerializer(
             notes_queryset,
             partial=True,
