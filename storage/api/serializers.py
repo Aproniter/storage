@@ -15,6 +15,41 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
+class RegistrationSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        max_length=254
+    )
+    username = serializers.CharField(
+        max_length=150
+    )
+    password = serializers.CharField(
+        max_length=150
+    )
+    first_name = serializers.CharField(
+        max_length=150
+    )
+    last_name = serializers.CharField(
+        max_length=150
+    )
+
+    class Meta:
+        fields = (
+            'email', 'username', 'password', 
+            'first_name', 'last_name'
+        )
+
+    def validate_username(self, data):
+        if re.match(r'^[\\w.@+-]+\\z', data):
+            raise serializers.ValidationError(
+                'Недопустимые символы в username.'
+            )
+        if data == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя "me" в качестве username запрещено.'
+            )
+        return data
+
+
 class NoteSerializer(serializers.ModelSerializer):
     author = UserSerializer(many=False)
 

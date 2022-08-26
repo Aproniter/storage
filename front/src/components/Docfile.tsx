@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useState } from "react"
 import { saveAs } from 'file-saver'
-import { IChapter, IDocfile, IImage, INote, IProject, } from "../models"
+import { IDocfile, IImage, INote, IProject, } from "../models"
 import { Image } from './Image'
 import { Downloading } from './Downloading'
 import { settings } from '../components-settings/slider-settings'

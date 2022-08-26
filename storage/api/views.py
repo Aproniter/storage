@@ -14,7 +14,7 @@ from knox.views import LoginView as KnoxLoginView
 
 from .serializers import (
     ChapterSerializer, ProjectSerializer, NoteSerializer, 
-    DocfileSerializer, LoginSerializer)
+    DocfileSerializer, LoginSerializer, RegistrationSerializer)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from docs.models import Chapter, Project, Note, Document
 from .services import get_images_from_pdf
@@ -22,6 +22,36 @@ from users.models import User
 from .permissions import (
     AdminOwnerEditorOrViewerReadOnly
 )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def registration(request):
+    serializer = RegistrationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    try:
+        user, created = User.objects.get_or_create(
+            username=request.data['username'],
+            email=request.data['email'],
+            first_name=request.data['first_name'],
+            last_name=request.data['last_name'],
+        )
+        user.set_password(request.data['password'])
+        user.save()
+    except IntegrityError:
+        raise ValidationError(
+            'Некорректные username или email.'
+        )
+    message = account_activation_token.make_token(user)
+    with open('1.txt', 'w') as f:
+        f.write(message)
+    send_mail(
+        'Код подтверждения', message,
+        settings.EMAIL_HOST_USER,
+        [request.data.get('email')],
+        fail_silently=False
+    )
+    return Response(request.data, status=status.HTTP_200_OK)
 
 
 class ProjectViewSet(ModelViewSet):

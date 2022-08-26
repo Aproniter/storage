@@ -28,7 +28,9 @@ export function useProjects() {
     }
       useEffect(() => {
         fetchProjects()
+        
       }, [])
 
     return {projects}
 }
+// eslint-disable-next-line react-hooks/exhaustive-deps
