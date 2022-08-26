@@ -19,88 +19,119 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from docs.models import Chapter, Project, Note, Document
 from .services import get_images_from_pdf
 from users.models import User
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_chapters(request):
-    queryset = Chapter.objects.none()
-    project_id = request.query_params.get('project')
-    if project_id is not None:
-        queryset = Chapter.objects.filter(
-            projects__id=project_id
-        )
-    serializer = ChapterSerializer(
-        queryset,
-        partial=True,
-        many=True
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_notes(request):
-    queryset = Note.objects.none()
-    notes_id = request.query_params.get('ids')
-    if notes_id is not None:
-        queryset = Note.objects.filter(
-            id__in=notes_id.split(',')
-        )
-    serializer = NoteSerializer(
-        queryset,
-        partial=True,
-        many=True
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_docfiles(request):
-    queryset = Document.objects.none()
-    documents_id = request.query_params.get('ids')
-    if documents_id is not None:
-        queryset = Document.objects.filter(
-            id__in=documents_id.split(',')
-        )
-    serializer = DocfileSerializer(
-        queryset,
-        partial=True,
-        many=True
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_file(request, pk):
-    document = get_object_or_404(
-        Document,
-        id=pk
-    )
-    send_file = open(document.docfile,'rb')
-    response = FileResponse(send_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{document.title}";'
-    return response
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_preview(request, pk):
-    document = get_object_or_404(
-        Document,
-        id=pk
-    )
-    files = get_images_from_pdf(document)
-    return Response(files, status=status.HTTP_200_OK)
+from .permissions import (
+    AdminOwnerEditorOrViewerReadOnly
+)
 
 
 class ProjectViewSet(ModelViewSet):
     pagination_class = LimitOffsetPagination
     serializer_class = ProjectSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AdminOwnerEditorOrViewerReadOnly]
     queryset = Project.objects.all()
+    
+    def get_queryset(self):
+        return self.request.user.projects_viewer.all()
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_name='get_chapters',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+    )
+    def get_chapters(self, request, pk):
+        obj = get_object_or_404(
+            self.get_queryset(), pk=pk
+        )
+        self.check_object_permissions(self.request, obj)
+        serializer = ChapterSerializer(
+            obj.chapters,
+            partial=True,
+            many=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_name='get_notes',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+    )
+    def get_notes(self, request, pk):
+        obj = get_object_or_404(
+            self.get_queryset(), pk=pk
+        )
+        self.check_object_permissions(self.request, obj)
+        chapter_id = request.GET.get('chapter', None)
+        print(chapter_id)
+        notes_queryset = (
+            obj.notes.all() 
+            if not chapter_id
+            else get_object_or_404(Chapter, id=chapter_id).notes.all()
+        )
+        serializer = NoteSerializer(
+            notes_queryset,
+            partial=True,
+            many=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_name='get_docfiles',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+    )
+    def get_docfiles(self, request, pk):
+        obj = get_object_or_404(
+            self.get_queryset(), pk=pk
+        )
+        self.check_object_permissions(self.request, obj)
+        chapter = request.GET.get('chapter', None)
+        serializer = DocfileSerializer(
+            obj.documents.filter(chapter__id=chapter),
+            partial=True,
+            many=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_name='get_preview',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+    )
+    def get_preview(self, request, pk):
+        obj = get_object_or_404(
+            self.get_queryset(), pk=pk
+        )
+        self.check_object_permissions(self.request, obj)
+        document = get_object_or_404(
+            obj.documents.all(),
+            id=request.GET.get('docfile', None)
+        )
+        files = get_images_from_pdf(document)
+        return Response(files, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_name='get_file',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+    )
+    def get_file(self, request, pk):
+        obj = get_object_or_404(
+            self.get_queryset(), pk=pk
+        )
+        self.check_object_permissions(self.request, obj)
+        document = get_object_or_404(
+            obj.documents.all(),
+            id=request.GET.get('docfile', None)
+        )
+        send_file = open(document.docfile,'rb')
+        response = FileResponse(send_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{document.title}";'
+        return response
 
 
 class LoginView(KnoxLoginView):

@@ -10,7 +10,7 @@ const headers = {
 }
 
 interface NavProps {
-    handler: ()=>void;
+    handler: (status:boolean)=>void;
     auth: boolean;
 }
 
@@ -36,10 +36,14 @@ export function Nav(props:NavProps) {
                 'token', 
                 response.data.token
             );
+            window.localStorage.setItem(
+                'auth', 
+                'true'
+            );
             setEmail('');
             setPassword('');
             auth = true
-            props.handler()
+            props.handler(true)
         }
     }
 
@@ -56,10 +60,11 @@ export function Nav(props:NavProps) {
             });
         } catch {} finally {
             window.localStorage.removeItem('token');
+            window.localStorage.removeItem('auth');
             setEmail('');
             setPassword('');
             auth = false
-            props.handler()
+            props.handler(false)
         };
         
     };

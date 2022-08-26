@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useState } from "react"
 import { saveAs } from 'file-saver'
-import { IDocfile, IImage, INote, } from "../models"
+import { IChapter, IDocfile, IImage, INote, IProject, } from "../models"
 import { Image } from './Image'
 import { Downloading } from './Downloading'
 import { settings } from '../components-settings/slider-settings'
@@ -11,6 +11,7 @@ import { Note } from "./Note"
 
 interface DocfileProps {
     docfile: IDocfile
+    project: IProject
 }
 
 const headers = {
@@ -20,7 +21,7 @@ const headers = {
 const BaseURL = process.env.REACT_APP_BASE_URL
 
 
-export function Docfile({docfile}: DocfileProps) {
+export function Docfile({project, docfile}: DocfileProps) {
     const haveNotes = (docfile.notes && docfile.notes.length > 0);
     const iconColorClassName = haveNotes ? 'fill-red-500' : 'fill-grey-500';
     const iconClasses = ["w-8 h-8", iconColorClassName];
@@ -48,12 +49,12 @@ export function Docfile({docfile}: DocfileProps) {
         setNotesVisible (prev => !prev)
     };
 
-    async function fetchPreview(docfile_id: number) {
+    async function fetchPreview() {
         setDownloading(true)
         if(images.length === 0){
             const token = window.localStorage.getItem('token')
             const responce = await axios.get<IImage[]>(
-                `${BaseURL}/get_preview/${docfile_id}/`,
+                `${BaseURL}/projects/${project.id}/get_preview/?docfile=${docfile.id}`,
                 { headers: {
                     ...headers, 
                     'authorization': `Token ${token}`
@@ -72,7 +73,7 @@ export function Docfile({docfile}: DocfileProps) {
     async function getDocumentFile(docfile_id: number, filename: string) {
         const token = window.localStorage.getItem('token')
         return axios.get(
-            `${BaseURL}/get_file/${docfile_id}/`, 
+            `${BaseURL}/projects/${project.id}/get_file/?docfile=${docfile.id}`, 
             {
                 responseType: 'blob',
                 headers: {
@@ -94,7 +95,7 @@ export function Docfile({docfile}: DocfileProps) {
                 <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Предпросмотр'>
                     <svg
                         className='w-8 h-8'
-                        onClick={() => fetchPreview(docfile.id)}
+                        onClick={() => fetchPreview()}
                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512"><g id="_01_align_center" data-name="01 align center"><path d="M24,22.586l-6.262-6.262a10.016,10.016,0,1,0-1.414,1.414L22.586,24ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></g>
                     </svg>
                 </div>

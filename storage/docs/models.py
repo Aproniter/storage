@@ -170,6 +170,7 @@ class Document(models.Model):
     project = models.ForeignKey(
         Project,
         verbose_name='Проект',
+        related_name='documents',
         on_delete=models.SET_NULL,
         null=True
     )
