@@ -42,6 +42,14 @@ class User(AbstractUser):
         max_length=254,
         unique=True,
     )
+    is_active = models.BooleanField(
+        default=False
+    )
+    code = models.CharField(
+        null=True,
+        blank=True,
+        max_length=255,
+    )
     
 
     @property

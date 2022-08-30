@@ -1,25 +1,21 @@
 import axios from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { saveAs } from 'file-saver'
-import { IDocfile, IImage, INote, IProject, } from "../models"
+import { IDocfile, IImage, IProject, } from "../models"
 import { Image } from './Image'
 import { Downloading } from './Downloading'
 import { settings } from '../components-settings/slider-settings'
 import Slider from 'react-slick'
 import { Note } from "./Note"
+import { useLazyGetDocfileNotesQuery, useLazyGetPreviewQuery } from "../store/server/server.api"
+import { headers } from "../components-settings/headers"
+import { useAppSelector } from "../hooks/redux"
 
 
 interface DocfileProps {
     docfile: IDocfile
     project: IProject
 }
-
-const headers = {
-    'content-type': 'application/json',
-}
-
-const BaseURL = process.env.REACT_APP_BASE_URL
-
 
 export function Docfile({project, docfile}: DocfileProps) {
     const haveNotes = (docfile.notes && docfile.notes.length > 0);
@@ -28,55 +24,38 @@ export function Docfile({project, docfile}: DocfileProps) {
     const [images, setImages] = useState<IImage[]>([]);
     const [imagesVisible, setImagesVisible] = useState(false);
     const [downloading, setDownloading] = useState(false);
-    const [notes, setNotes] = useState<INote[]>([]);
     const [notesVisible, setNotesVisible] = useState(false);
 
-    async function fetchNotes() {
-        if(notes.length === 0){
-            const token = window.localStorage.getItem('token')
-            const responce = await axios.get<INote[]>(
-                `${BaseURL}/projects/${project.id}/get_notes/?docfile=${docfile.id}`,
-                { headers: {
-                        ...headers, 
-                        'authorization': `Token ${token}`
-                }}
-            )
-            setNotes(responce.data)
-            
+    const [fetchNotes, {isLoading:notesLoading, data:notes}] = useLazyGetDocfileNotesQuery()
+    const [fetchPreview, {isLoading:imagesLoading, data:fetcImages}] = useLazyGetPreviewQuery()
+
+    useEffect(() => {
+        setImages(fetcImages ? fetcImages : [])
+      }, [fetcImages && fetcImages.length]);
+
+    const getNotes = (project_id: number, chapter_id: number) => {
+        if(!notesVisible && haveNotes){
+            fetchNotes([project_id, chapter_id])
         }
         setNotesVisible (prev => !prev)
-    };
+    }
 
-    async function fetchPreview() {
-        setDownloading(true)
-        if(images.length === 0){
-            const token = window.localStorage.getItem('token')
-            const responce = await axios.get<IImage[]>(
-                `${BaseURL}/projects/${project.id}/get_preview/?docfile=${docfile.id}`,
-                { headers: {
-                    ...headers, 
-                    'authorization': `Token ${token}`
-            }}
-            )
-            if(responce.data.length === 0){
-                setDownloading(false)
-                return
-            }
-            setImages(responce.data)
+    const getPreview = (project_id: number, chapter_id: number) => {
+        if(!imagesVisible && images.length === 0){
+            fetchPreview([project_id, chapter_id])
         }
         setImagesVisible (prev => !prev)
-        setDownloading(false)
-    };
+    }
 
     async function getDocumentFile(docfile_id: number, filename: string) {
-        const token = window.localStorage.getItem('token')
+        const token = window.sessionStorage.getItem('token')
         return axios.get(
-            `${BaseURL}/projects/${project.id}/get_file/?docfile=${docfile.id}`, 
+            `${process.env.REACT_APP_BASE_URL}projects/${project.id}/get_file/?docfile=${docfile.id}`, 
             {
                 responseType: 'blob',
                 headers: {
-                    ...headers, 
-                    'authorization': `Token ${token}`
+                    ...headers,
+                    // 'authorization': `Token ${token}`
                 }
             })
         .then(response => new Blob([response.data]))
@@ -93,14 +72,14 @@ export function Docfile({project, docfile}: DocfileProps) {
                 <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Предпросмотр'>
                     <svg
                         className='w-8 h-8'
-                        onClick={() => fetchPreview()}
+                        onClick={() => getPreview(project.id, docfile.id)}
                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512"><g id="_01_align_center" data-name="01 align center"><path d="M24,22.586l-6.262-6.262a10.016,10.016,0,1,0-1.414,1.414L22.586,24ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></g>
                     </svg>
                 </div>
                 <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Показать/скрыть заметки'>
                     <svg
                         className={iconClasses.join(' ')}
-                        onClick={haveNotes ? () => fetchNotes() : () => false}
+                        onClick={() => getNotes(project.id, docfile.id)}
                         xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
                     </svg>
                 </div>
@@ -113,13 +92,14 @@ export function Docfile({project, docfile}: DocfileProps) {
                 </div>
             </div>
         </div>
-        {notesVisible && notes.map(note => <Note note={note} key={note.id}/>)}
-        {downloading && <Downloading/>}
-        {imagesVisible && <Slider {...settings}>
-                            {images.sort((a,b) => a.id - b.id).map((image) => (
-                                <Image data={image.data} id={image.id} key={image.id}/>
+        {notesVisible && notes?.map(note => <Note note={note} key={note.id}/>)}
+        {(imagesLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
+        {imagesVisible && images && images.length > 0 && <Slider {...settings}>
+                            {[...images].sort((a,b) => a.id - b.id).map((image) => (
+                                <Image path={image.path} id={image.id} key={image.id}/>
                             ))}
                           </Slider>}
         </>
     )
 }
+// .sort((a,b) => a.id - b.id)

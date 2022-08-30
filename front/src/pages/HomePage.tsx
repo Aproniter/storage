@@ -1,25 +1,32 @@
 import { Project } from "../components/Project";
-import { useProjects } from '../hooks/project';
+import { useGetProjectsQuery } from "../store/server/server.api";
+import { IProject } from '../models';
+import { Downloading } from "../components/Downloading";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../hooks/redux";
+import { useEffect } from "react";
 
-interface HomeProps {
-    auth: boolean
-}
 
-export function HomePage(props:HomeProps){
 
-    const { projects } = useProjects()
+export function HomePage(){
+    const {isLoading, data: projects} = useGetProjectsQuery('')
+    const isAuth = useAppSelector(state => state.auth.isAuth)
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      if(!isAuth){
+        navigate('/auth', { replace: false });
+      }
+    });
 
     return(
-    
-    <>
-        {!props.auth && <div className='flex justify-center text-rose-700 text-4xl'><p>Пожалуйста авторизуйтесь</p></div>}
-        {projects.length > 0
-        && props.auth 
-        &&<div className='container flex justify-center my-5 mx-auto max-w-7xl'>
-          {projects.map(project => <Project project={project} key={project.id}/>)}
-        </div>
-        }
-        {projects.length === 0 && props.auth && <div className='flex justify-center text-rose-500 text-4xl'><p>Нет доступных проектов</p></div>}
-    </>
-    )
+      <>
+          { isLoading && <div className="flex w-full justify-center"><Downloading/></div>}
+          {projects && projects.length > 0 && <div className='container flex justify-center my-5 mx-auto max-w-7xl'>
+            {projects.map((project: IProject) => <Project project={project} key={project.id}/>)}
+          </div>}
+      </>
+      )
+
+   
 }

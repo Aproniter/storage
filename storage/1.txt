@@ -1,0 +1,1 @@
+http://localhost:3000/activate/?activation_code=bazg9k-341f9d76a66c724d7f8ccd0ab7b60f38

@@ -1,28 +1,22 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux'
 import { Route, Routes } from 'react-router-dom';
 import { Nav } from './components/Nav';
 import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
-import { RegistrationPage } from './pages/RegistrationPage';
+import { AuthPage } from './pages/AuthPage';
+import { ActivatePage } from './pages/ActivatePage';
 
 
 
 function App() {
-
-  const [auth, setAuth] = useState(window.localStorage.getItem('auth') === 'true')
-
-
-  function handler(status:boolean){
-    setAuth(status)
-  }
   
   return (
   <>
-    <Nav handler={handler} auth={auth}/>
+    <Nav />
     <Routes>
-      <Route path='/' element={ <HomePage auth/>}/>
-      <Route path='/signup' element={ <RegistrationPage/>}/>
-      <Route path='/login' element={ <LoginPage/>}/>
+      <Route path='/' element={ <HomePage />}/>
+      <Route path='/auth' element={ <AuthPage/>}/>
+      <Route path='/activate' element={ <ActivatePage/>}/>
     </Routes>
   </>
    

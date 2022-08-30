@@ -1,55 +1,35 @@
-import axios from 'axios'
 import { useState } from 'react'
-import { IChapter, INote, IProject } from '../models'
+import { IProject } from '../models'
+import { useLazyGetProjectChaptersQuery, useLazyGetProjectNotesQuery } from '../store/server/server.api'
 import { Chapter } from './Chapter'
+import { Downloading } from './Downloading'
 import { Note } from './Note'
-
-const BaseURL = process.env.REACT_APP_BASE_URL
 
 interface ProjectProps {
     project: IProject
-}
-
-const headers = {
-    'content-type': 'application/json',
 }
 
 export function Project({ project }: ProjectProps) {
     const haveNotes = project.notes.length > 0
     const iconColorClassName = haveNotes ? 'fill-red-500' : 'fill-grey-500'
     const iconClasses = ["w-8 h-8", iconColorClassName]
-    const [chapters, setChapters] = useState<IChapter[]>([])
     const [chaptersVisible, setChaptersVisible] = useState(false)
-    const [notes, setNotes] = useState<INote[]>([])
     const [notesVisible, setNotesVisible] = useState(false)
 
-    async function fetchChapters(proj: number) {
-        if(chapters.length === 0){
-            const token = window.localStorage.getItem('token')
-            const responce = await axios.get<IChapter[]>(
-                `${BaseURL}/projects/${proj}/get_chapters/`,
-                { headers: {
-                        ...headers, 
-                        'authorization': `Token ${token}`
-                }}
-            );
-            setChapters(responce.data)
-        } 
+    const [fetchChapters, {isLoading:chaptersLoading, data:chapters}] = useLazyGetProjectChaptersQuery()
+    const [fetchNotes, {isLoading:notesLoading, data:notes}] = useLazyGetProjectNotesQuery()
+
+    const getChapters = (project_id: number) => {
+        if(!chaptersVisible){
+            fetchChapters(project_id)
+        }
         setChaptersVisible (prev => !prev)
     }
 
-    async function fetchNotes() {
-        const token = window.localStorage.getItem('token')
-        if(notes.length === 0){
-            const responce = await axios.get<INote[]>(
-                `${BaseURL}/projects/${project.id}/get_notes/`,
-                { headers : {
-                    ...headers, 
-                    'authorization': `Token ${token}`
-                }}
-            );
-            setNotes(responce.data)
-        } 
+    const getNotes = (project_id: number) => {
+        if(!notesVisible && haveNotes){
+            fetchNotes(project_id)
+        }
         setNotesVisible (prev => !prev)
     }
 
@@ -67,21 +47,22 @@ export function Project({ project }: ProjectProps) {
                     <div data-tooltip='Показать/скрыть заметки' className='p-1 hover:shadow shadow-2xl'>
                         <svg
                             className={iconClasses.join(' ')}
-                            onClick={haveNotes ? () => fetchNotes() : () => false}
+                            onClick={() => getNotes(project.id)}
                             xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
                         </svg>
                     </div>
                     <div data-tooltip='Показать/скрыть разделы' className='p-1 hover:shadow shadow-2xl'>
                         <svg
                             className="w-8 h-8 fill-gray-500"
-                            onClick={() => fetchChapters(project.id)}
+                            onClick={() => getChapters(project.id)}
                             xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M1,6H23a1,1,0,0,0,0-2H1A1,1,0,0,0,1,6Z"/><path d="M23,9H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,19H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,14H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/>
                         </svg>
                     </div>
                 </div>
             </div>
-            {notesVisible && notes.map(note => <Note note={note} key={note.id}/>)}
-            {chaptersVisible && chapters.map(chapter => <Chapter project={project} chapter={chapter} key={chapter.id}/>)}
+            {notesVisible && notes?.map(note => <Note note={note} key={note.id}/>)}
+            {(chaptersLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
+            {chaptersVisible && chapters?.map(chapter => <Chapter project={project} chapter={chapter} key={chapter.id}/>)}
         </div>
     )
 }

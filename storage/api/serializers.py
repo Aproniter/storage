@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -89,8 +91,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.CharField(
-        max_length=150
+    email = serializers.EmailField(
+        max_length=255
     )
     password = serializers.CharField(
         max_length=150
