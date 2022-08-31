@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import ValidationError
@@ -27,6 +26,9 @@ from users.models import User
 from .permissions import (
     AdminOwnerEditorOrViewerReadOnly
 )
+
+from .pagination import CustomPageNumberPagination
+
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
@@ -89,9 +91,8 @@ def activate(request):
 
 
 class ProjectViewSet(ReadOnlyModelViewSet):
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPageNumberPagination
     serializer_class = ProjectSerializer
-    # permission_classes = [AllowAny]
     permission_classes = [AdminOwnerEditorOrViewerReadOnly]
 
     def get_queryset(self):
@@ -101,43 +102,43 @@ class ProjectViewSet(ReadOnlyModelViewSet):
 
     def list(self, request):
         queryset = self.get_queryset()
-        serializer = ProjectSerializer(queryset, many=True)
-        response = {
-            'total_count': len(queryset),
-            'items': serializer.data
-        }
-        return Response(response, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(queryset)
+        serializer = ProjectSerializer(
+            queryset if page is None else page,
+            partial=True,
+            many=True
+        )
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
         methods=['get'],
         url_name='get_chapters',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        # permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly],
     )
     def get_chapters(self, request, pk):
         obj = get_object_or_404(
             self.get_queryset(), pk=pk
         )
         self.check_object_permissions(self.request, obj)
-        queryset = obj.chapters
+        queryset = obj.chapters.all()
+        page = self.paginate_queryset(queryset)
         serializer = ChapterSerializer(
-            obj.chapters,
+            queryset if page is None else page,
             partial=True,
             many=True
         )
-        response = {
-            'total_count': queryset.count(),
-            'items': serializer.data
-        }
-        return Response(response, status=status.HTTP_200_OK)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
         methods=['get'],
         url_name='get_notes',
         permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        # permission_classes=[AllowAny]
     )
     def get_notes(self, request, pk):
         obj = get_object_or_404(
@@ -172,7 +173,6 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         methods=['get'],
         url_name='get_docfiles',
         permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        # permission_classes=[AllowAny]
     )
     def get_docfiles(self, request, pk):
         obj = get_object_or_404(
@@ -197,7 +197,6 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         methods=['get'],
         url_name='get_preview',
         permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        # permission_classes=[AllowAny]
     )
     def get_preview(self, request, pk):
         obj = get_object_or_404(
@@ -220,7 +219,6 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         methods=['get'],
         url_name='get_file',
         permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        # permission_classes=[AllowAny]
     )
     def get_file(self, request, pk):
         obj = get_object_or_404(

@@ -58,6 +58,13 @@ export interface IDocfile{
 }
 
 export interface ServerResponse<T> {
-    count: number;
-    items: T[];
+    total_count: number;
+    links: {
+        next?: string,
+        previous?: string,
+    }
+    results: {
+        count: number,
+        items: [];
+    }
 }

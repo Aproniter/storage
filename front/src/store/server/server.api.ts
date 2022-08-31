@@ -1,6 +1,6 @@
 import { BaseQueryFn, createApi, FetchArgs, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from '..'
-import { IChapter, IDocfile, IImage, INote, IProject, ServerResponse } from '../../models'
+import { IDocfile, IImage, INote, ServerResponse } from '../../models'
 
 export interface CustomError {
     'status': number,
@@ -23,54 +23,54 @@ export const serverApi = createApi({
           },
     }) as BaseQueryFn<string | FetchArgs, unknown, CustomError, {}>,
     endpoints: build => ({
-        getProjects: build.query<IProject[], string>({
+        getProjects: build.query<ServerResponse<any>, string>({
             query: () => ({
-                url: `projects`,
+                url: `projects/`,
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<IProject>) => response.items
+            // transformResponse: (response: ServerResponse<IProject>) => response.results.items
         }),
-        getProjectChapters: build.query<IChapter[], number>({
-            query: (project: number) => ({
-                url: `projects/${project}/get_chapters`
+        getProjectChapters: build.query<ServerResponse<any>, number[]>({
+            query: (params: number[]) => ({
+                url: `projects/${params[0]}/get_chapters/?page=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<IChapter>) => response.items
+            // transformResponse: (response: ServerResponse<IChapter>) => response.results.items,
         }),
         getProjectNotes: build.query<INote[], number>({
             query: (project: number) => ({
                 url: `projects/${project}/get_notes`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<INote>) => response.items
+            transformResponse: (response: ServerResponse<INote>) => response.results.items
         }),
         getChapterNotes: build.query<INote[], number[]>({
             query: (params:number[]) => ({
                 url: `projects/${params[0]}/get_notes/?chapter=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<INote>) => response.items
+            transformResponse: (response: ServerResponse<INote>) => response.results.items
         }),
         getDocfileNotes: build.query<INote[], number[]>({
             query: (params:number[]) => ({
                 url: `projects/${params[0]}/get_notes/?docfile=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<INote>) => response.items
+            transformResponse: (response: ServerResponse<INote>) => response.results.items
         }),
         getDocfiles: build.query<IDocfile[], number[]>({
             query: (params:number[]) => ({
                 url: `projects/${params[0]}/get_docfiles/?chapter=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<INote>) => response.items
+            transformResponse: (response: ServerResponse<INote>) => response.results.items
         }),
         getPreview: build.query<IImage[], number[]>({
             query: (params:number[]) => ({
                 url: `projects/${params[0]}/get_preview/?docfile=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<IImage>) => response.items
+            transformResponse: (response: ServerResponse<IImage>) => response.results.items
         })
     })
 })

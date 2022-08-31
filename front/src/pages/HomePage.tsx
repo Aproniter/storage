@@ -11,18 +11,29 @@ import { authSlice } from "../store/slices/authSlice";
 
 
 export function HomePage(){
-    const {isLoading, data: projects} = useGetProjectsQuery('')
+    const {isLoading, data: projectsData} = useGetProjectsQuery('')
     const dispatch = useAppDispatch()
     const isAuth = useAppSelector(state => state.auth.isAuth)
     const navigate = useNavigate();
     const { error } = useSelector(serverApi.endpoints.getProjects.select(''))
     const [errMsg, setErrMsg] = useState('')
+    const [projects, setProjects] = useState([])
+
 
     useEffect(() => {
+      if(errMsg && isAuth){
+        setErrMsg('')
+      }
       if(!isAuth){
         navigate('/auth', { replace: false });
       }
-    });
+    }, [isAuth, errMsg, navigate]);
+
+    useEffect(() => {
+      if(projectsData){
+        setProjects(projectsData.results.items)
+      }
+    }, [projectsData]);
 
     useEffect(() => {
       if(error){
@@ -35,6 +46,8 @@ export function HomePage(){
         }
       }
     }, [error]);
+
+
 
     return(
       <>
@@ -50,7 +63,7 @@ export function HomePage(){
                       </span>
                     </div>
           }
-          { isLoading && <div className="flex w-full justify-center"><Downloading/></div>}
+          {isLoading && <div className="flex w-full justify-center"><Downloading/></div>}
           {projects && projects.length > 0 && <div className='container flex justify-center my-5 mx-auto max-w-7xl'>
             {projects.map((project: IProject) => <Project project={project} key={project.id}/>)}
           </div>}

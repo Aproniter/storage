@@ -77,6 +77,7 @@ class Project(models.Model):
     class Meta:
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
+        ordering = ['title']
 
     def __str__(self):
         return self.title
@@ -97,6 +98,7 @@ class Chapter(models.Model):
     class Meta:
         verbose_name = 'Раздел'
         verbose_name_plural = 'Разделы'
+        ordering = ['title']
 
     def __str__(self):
         return self.title
@@ -151,6 +153,7 @@ class Note(models.Model):
     class Meta:
         verbose_name = 'Заметка'
         verbose_name_plural = 'Заметки'
+        ordering = ['title']
 
     def __str__(self):
         return self.title
@@ -245,6 +248,7 @@ class Document(models.Model):
     class Meta:
         verbose_name = 'Документ'
         verbose_name_plural = 'Документы'
+        ordering = ['title']
 
     def __str__(self):
         return f'{self.project} - {self.title}'

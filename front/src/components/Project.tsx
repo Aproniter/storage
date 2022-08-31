@@ -1,9 +1,10 @@
-import { useState } from 'react'
-import { IProject } from '../models'
+import { useEffect, useState } from 'react'
+import { IProject, IChapter } from '../models'
 import { useLazyGetProjectChaptersQuery, useLazyGetProjectNotesQuery } from '../store/server/server.api'
 import { Chapter } from './Chapter'
 import { Downloading } from './Downloading'
 import { Note } from './Note'
+import { Pagination } from './Pagination'
 
 interface ProjectProps {
     project: IProject
@@ -15,13 +16,18 @@ export function Project({ project }: ProjectProps) {
     const iconClasses = ["w-8 h-8", iconColorClassName]
     const [chaptersVisible, setChaptersVisible] = useState(false)
     const [notesVisible, setNotesVisible] = useState(false)
+    const [chapters, setChapters] = useState([])
+    const [nextPage, setNextPage] = useState('')
+    const [prevPage, setPrevPage] = useState('')
+    const [totalPages, setTotalPages] = useState(1)
+    const [page, setPage] = useState(1)
 
-    const [fetchChapters, {isLoading:chaptersLoading, data:chapters}] = useLazyGetProjectChaptersQuery()
+    const [fetchChapters, {isLoading:chaptersLoading, data:chaptersData}] = useLazyGetProjectChaptersQuery()
     const [fetchNotes, {isLoading:notesLoading, data:notes}] = useLazyGetProjectNotesQuery()
 
-    const getChapters = (project_id: number) => {
+    const getChapters = (project_id: number, page:number) => {
         if(!chaptersVisible){
-            fetchChapters(project_id)
+            fetchChapters([project_id, page])
         }
         setChaptersVisible (prev => !prev)
     }
@@ -32,6 +38,33 @@ export function Project({ project }: ProjectProps) {
         }
         setNotesVisible (prev => !prev)
     }
+
+    function pages(){
+        let pages:number[] = []
+        for(let i =1; i <= totalPages; i++){
+            pages.push(i)
+        }
+        return pages
+    }
+
+    useEffect(() => {
+        fetchChapters([project.id, page])
+    }, [project.id, page, fetchChapters])
+
+    useEffect(() => {
+        if(chaptersData){
+            setChapters(chaptersData.results.items)
+            if(chaptersData.links.next){
+                setNextPage(chaptersData.links.next.split('?page=')[1])
+            }
+            if(chaptersData.links.previous){
+                setPrevPage(chaptersData.links.previous.split('?page=')[1])
+            }
+            if(chaptersData.total_count){
+                setTotalPages(Math.ceil(chaptersData.total_count / 5))
+            }
+        }
+      }, [chaptersData]);
 
     return (
         <div 
@@ -54,7 +87,7 @@ export function Project({ project }: ProjectProps) {
                     <div data-tooltip='Показать/скрыть разделы' className='p-1 hover:shadow shadow-2xl'>
                         <svg
                             className="w-8 h-8 fill-gray-500"
-                            onClick={() => getChapters(project.id)}
+                            onClick={() => getChapters(project.id, page)}
                             xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M1,6H23a1,1,0,0,0,0-2H1A1,1,0,0,0,1,6Z"/><path d="M23,9H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,19H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/><path d="M23,14H1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z"/>
                         </svg>
                     </div>
@@ -62,7 +95,9 @@ export function Project({ project }: ProjectProps) {
             </div>
             {notesVisible && notes?.map(note => <Note note={note} key={note.id}/>)}
             {(chaptersLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
-            {chaptersVisible && chapters?.map(chapter => <Chapter project={project} chapter={chapter} key={chapter.id}/>)}
+            {chaptersVisible && chapters && chapters.length > 0 && chapters.map((chapter:IChapter) => <Chapter project={project} chapter={chapter} key={chapter.id}/>)}
+            {(nextPage || prevPage) && chaptersVisible && <Pagination pageNumber={page} pages={pages()} setPage={setPage}/>}
         </div>
+        
     )
 }
