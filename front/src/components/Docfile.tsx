@@ -8,7 +8,6 @@ import { settings } from '../components-settings/slider-settings'
 import Slider from 'react-slick'
 import { Note } from "./Note"
 import { useLazyGetDocfileNotesQuery, useLazyGetPreviewQuery } from "../store/server/server.api"
-import { headers } from "../components-settings/headers"
 import { useAppSelector } from "../hooks/redux"
 
 
@@ -23,15 +22,14 @@ export function Docfile({project, docfile}: DocfileProps) {
     const iconClasses = ["w-8 h-8", iconColorClassName];
     const [images, setImages] = useState<IImage[]>([]);
     const [imagesVisible, setImagesVisible] = useState(false);
-    const [downloading, setDownloading] = useState(false);
     const [notesVisible, setNotesVisible] = useState(false);
-
+    const token = useAppSelector(state => state.auth.token);
     const [fetchNotes, {isLoading:notesLoading, data:notes}] = useLazyGetDocfileNotesQuery()
     const [fetchPreview, {isLoading:imagesLoading, data:fetcImages}] = useLazyGetPreviewQuery()
 
     useEffect(() => {
         setImages(fetcImages ? fetcImages : [])
-      }, [fetcImages && fetcImages.length]);
+      }, [fetcImages]);
 
     const getNotes = (project_id: number, chapter_id: number) => {
         if(!notesVisible && haveNotes){
@@ -48,14 +46,13 @@ export function Docfile({project, docfile}: DocfileProps) {
     }
 
     async function getDocumentFile(docfile_id: number, filename: string) {
-        const token = window.sessionStorage.getItem('token')
         return axios.get(
             `${process.env.REACT_APP_BASE_URL}projects/${project.id}/get_file/?docfile=${docfile.id}`, 
             {
                 responseType: 'blob',
                 headers: {
-                    ...headers,
-                    // 'authorization': `Token ${token}`
+                    'content-type': 'application/pdf',
+                    'authorization': `Token ${token}`
                 }
             })
         .then(response => new Blob([response.data]))

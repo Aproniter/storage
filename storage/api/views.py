@@ -91,8 +91,8 @@ def activate(request):
 class ProjectViewSet(ReadOnlyModelViewSet):
     pagination_class = LimitOffsetPagination
     serializer_class = ProjectSerializer
-    permission_classes = [AllowAny]
-    # permission_classes = [AdminOwnerEditorOrViewerReadOnly]
+    # permission_classes = [AllowAny]
+    permission_classes = [AdminOwnerEditorOrViewerReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -112,8 +112,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_chapters',
-        # permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AllowAny]
     )
     def get_chapters(self, request, pk):
         obj = get_object_or_404(
@@ -136,14 +136,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_notes',
-        # permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AllowAny]
     )
     def get_notes(self, request, pk):
         obj = get_object_or_404(
             self.get_queryset(), pk=pk
         )
-        # self.check_object_permissions(self.request, obj)
+        self.check_object_permissions(self.request, obj)
         chapter_id = request.GET.get('chapter', None)
         docfile_id = request.GET.get('docfile', None)
         if chapter_id:
@@ -171,8 +171,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_docfiles',
-        # permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AllowAny]
     )
     def get_docfiles(self, request, pk):
         obj = get_object_or_404(
@@ -196,14 +196,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_preview',
-        # permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AllowAny]
     )
     def get_preview(self, request, pk):
         obj = get_object_or_404(
             self.get_queryset(), pk=pk
         )
-        # self.check_object_permissions(self.request, obj)
+        self.check_object_permissions(self.request, obj)
         document = get_object_or_404(
             obj.documents.all(),
             id=request.GET.get('docfile', None)
@@ -219,14 +219,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_file',
-        # permission_classes=[AdminOwnerEditorOrViewerReadOnly]
-        permission_classes=[AllowAny]
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AllowAny]
     )
     def get_file(self, request, pk):
         obj = get_object_or_404(
             self.get_queryset(), pk=pk
         )
-        # self.check_object_permissions(self.request, obj)
+        self.check_object_permissions(self.request, obj)
         document = get_object_or_404(
             obj.documents.all(),
             id=request.GET.get('docfile', None)
@@ -246,7 +246,9 @@ class LoginView(KnoxLoginView):
         user = User.objects.filter(
             email=serializer.validated_data.get('email')
         )
-        if len(user) == 0:
+        try:
+            user = user.first()
+        except:
             return Response(
                 {'detail': 'Пользователь не найден.'},
                 status=status.HTTP_404_NOT_FOUND

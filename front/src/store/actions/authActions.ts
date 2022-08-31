@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { headers } from '../../components-settings/headers';
 import { AppDispatch } from '../index'
 import { authSlice } from '../slices/authSlice';
 
