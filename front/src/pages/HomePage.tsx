@@ -1,5 +1,5 @@
 import { Project } from "../components/Project";
-import { CustomError, serverApi, useGetProjectsQuery } from "../store/server/server.api";
+import { serverApi, useGetProjectsQuery } from "../store/server/server.api";
 import { IProject } from '../models';
 import { Downloading } from "../components/Downloading";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,10 +17,8 @@ export function HomePage(){
     const navigate = useNavigate();
     const { error } = useSelector(serverApi.endpoints.getProjects.select(''))
     const [errMsg, setErrMsg] = useState('')
-    
-    
 
-    useEffect(() => {      
+    useEffect(() => {
       if(!isAuth){
         navigate('/auth', { replace: false });
       }
@@ -29,7 +27,7 @@ export function HomePage(){
     useEffect(() => {
       if(error){
         if('status' in error) {
-          if(error.status === 401){            
+          if(error.status === 401){
             if('Недопустимый токен.' === error.data.detail){
               setErrMsg('Ошибка авторизации. Возможно сессия истекла')
             }
@@ -58,6 +56,4 @@ export function HomePage(){
           </div>}
       </>
       )
-
-   
 }

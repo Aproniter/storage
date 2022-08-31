@@ -65,16 +65,15 @@ export function AuthPage(){
             {errorMessage}
         </div>
         }
-        
         <div className="container mx-auto mt-40 flex flex-col h-full w-full items-center justify-center">
             <span>
-                <a
+                <span
                     className={!signup ? authBtnClasses[0] : authBtnClasses[1]}
                     onClick={signup ? () => signupHendler(false) : () => false}
-                >Войдите</a> или <a
+                >Войдите</span> или <span
                     className={signup ? authBtnClasses[0] : authBtnClasses[1]}
                     onClick={!signup ? () => signupHendler(true) : () => false}
-                >зарегестрируйтесь</a>
+                >зарегестрируйтесь</span>
             </span>
             {(!signup &&
                 <form className="login_form flex flex-col p-2" onSubmit={submitHandler}>
@@ -134,9 +133,7 @@ export function AuthPage(){
                     <button className="login p-1 outline my-2 outline-offset-2 outline-1 rounded-sm" type="submit">Регистрация</button>
                 </form>
             }
-            
         </div>
         </>
-        
     )
 }

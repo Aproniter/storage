@@ -32,7 +32,7 @@ export const signin = (data: AuthData) => {
                 error: response.data.detail
             }))
         } catch (e) {
-            throw e as Error
+            throw e;
         }
     }
 }
