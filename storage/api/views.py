@@ -162,9 +162,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
             partial=True,
             many=True
         )
+        data_count = queryset.count()
         response = {
-            'total_count': queryset.count(),
-            'items': serializer.data
+            'total_count': data_count,
+            'results':{
+                'items': serializer.data,
+                'count': data_count
+            }
+            
         }
         return Response(response, status=status.HTTP_200_OK)
 
@@ -186,9 +191,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
             partial=True,
             many=True
         )
+        data_count = queryset.count()
         response = {
-            'total_count': queryset.count(),
-            'items': serializer.data
+            'total_count': data_count,
+            'results':{
+                'items': serializer.data,
+                'count': data_count
+            }
+            
         }
         return Response(response, status=status.HTTP_200_OK)
 
@@ -208,9 +218,14 @@ class ProjectViewSet(ReadOnlyModelViewSet):
             id=request.GET.get('docfile', None)
         )
         files = get_images_from_pdf(document)
+        data_count = len(files)
         response = {
-            'total_count': len(files),
-            'items': files
+            'total_count': data_count,
+            'results':{
+                'items': files,
+                'count': data_count
+            }
+            
         }
         return Response(response, status=status.HTTP_200_OK)
 

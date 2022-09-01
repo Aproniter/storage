@@ -63,7 +63,7 @@ export const serverApi = createApi({
                 url: `projects/${params[0]}/get_docfiles/?chapter=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            transformResponse: (response: ServerResponse<INote>) => response.results.items
+            transformResponse: (response: ServerResponse<IDocfile>) => response.results.items
         }),
         getPreview: build.query<IImage[], number[]>({
             query: (params:number[]) => ({

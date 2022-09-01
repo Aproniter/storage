@@ -54,11 +54,13 @@ export function Project({ project }: ProjectProps) {
     useEffect(() => {
         if(chaptersData){
             setChapters(chaptersData.results.items)
-            if(chaptersData.links.next){
-                setNextPage(chaptersData.links.next.split('?page=')[1])
-            }
-            if(chaptersData.links.previous){
-                setPrevPage(chaptersData.links.previous.split('?page=')[1])
+            if(chaptersData.links){
+                if(chaptersData.links.next){
+                    setNextPage(chaptersData.links.next.split('?page=')[1])
+                }
+                if(chaptersData.links.previous){
+                    setPrevPage(chaptersData.links.previous.split('?page=')[1])
+                }
             }
             if(chaptersData.total_count){
                 setTotalPages(Math.ceil(chaptersData.total_count / 5))

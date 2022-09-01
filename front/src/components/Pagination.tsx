@@ -1,7 +1,6 @@
 
 
 export function Pagination(props:{pageNumber:number, pages:number[], setPage:any}){
-    console.log(props.pageNumber)
     return(
         <div 
             className='pagination flex w-full p-2 items-center justify-center'
@@ -15,7 +14,6 @@ export function Pagination(props:{pageNumber:number, pages:number[], setPage:any
                     >
                     {page}
                 </div>)
-
             }
         </div>
     )

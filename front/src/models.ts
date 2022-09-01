@@ -59,7 +59,7 @@ export interface IDocfile{
 
 export interface ServerResponse<T> {
     total_count: number;
-    links: {
+    links?: {
         next?: string,
         previous?: string,
     }
