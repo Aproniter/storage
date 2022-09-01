@@ -42,6 +42,8 @@ export function AuthPage(){
                     setErrorMessage(e.response.data.detail)
                 } else if(e.response.data.email){
                     setErrorMessage(e.response.data.email)
+                }else if(e.response.data.errors){
+                    setErrorMessage(e.response.data.errors)
                 } else{
                     setErrorMessage(e.response.data)
                 }

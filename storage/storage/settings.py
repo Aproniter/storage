@@ -150,10 +150,11 @@ REST_FRAMEWORK = {
 REST_KNOX = {
   'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
   'AUTH_TOKEN_CHARACTER_LENGTH': 64,
-  'TOKEN_TTL': timedelta(hours=2),
-  'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+  'TOKEN_TTL': timedelta(minutes=30),
+  'USER_SERIALIZER': 'api.serializers.UserSerializer',
   'TOKEN_LIMIT_PER_USER': None,
-  'AUTO_REFRESH': False,
+  'AUTO_REFRESH': True,
+  'AUTH_HEADER_PREFIX': 'Token',
   'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
 }
 

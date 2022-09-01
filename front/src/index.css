@@ -82,6 +82,14 @@ top: 2em;
     z-index: 100;
 }
 
+.slick-slider button:first-child{
+    left: 30px;
+}
+
+.slick-slider button:nth-child(3){
+    right: 30px;
+}
+
 .slick-slider button:hover {
     background-color: #788081;
 }

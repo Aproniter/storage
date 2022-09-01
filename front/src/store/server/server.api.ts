@@ -23,9 +23,9 @@ export const serverApi = createApi({
           },
     }) as BaseQueryFn<string | FetchArgs, unknown, CustomError, {}>,
     endpoints: build => ({
-        getProjects: build.query<ServerResponse<any>, string>({
-            query: () => ({
-                url: `projects/`,
+        getProjects: build.query<ServerResponse<any>, number>({
+            query: (page) => ({
+                url: `projects/?page=${page}`,
             }),
             keepUnusedDataFor: 100,
             // transformResponse: (response: ServerResponse<IProject>) => response.results.items
@@ -76,8 +76,8 @@ export const serverApi = createApi({
 })
 
 export const { 
-    useGetProjectsQuery, useLazyGetProjectChaptersQuery,
-    useLazyGetProjectNotesQuery, useLazyGetChapterNotesQuery,
-    useLazyGetDocfilesQuery, useLazyGetPreviewQuery,
-    useLazyGetDocfileNotesQuery
+    useGetProjectsQuery, useLazyGetProjectsQuery,
+    useLazyGetProjectChaptersQuery, useLazyGetProjectNotesQuery,
+    useLazyGetChapterNotesQuery, useLazyGetDocfilesQuery,
+    useLazyGetPreviewQuery, useLazyGetDocfileNotesQuery
 } = serverApi

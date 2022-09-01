@@ -1,6 +1,7 @@
 import re
 
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from docs.models import Chapter, Project, Note, Document
@@ -95,7 +96,12 @@ class LoginSerializer(serializers.Serializer):
         max_length=255
     )
     password = serializers.CharField(
-        max_length=150
+        max_length=150,
+        trim_whitespace=False,
+    )
+    token = serializers.CharField(
+        label=_("Token"),
+        read_only=True
     )
 
     class Meta:

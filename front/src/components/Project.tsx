@@ -48,8 +48,11 @@ export function Project({ project }: ProjectProps) {
     }
 
     useEffect(() => {
-        fetchChapters([project.id, page])
-    }, [project.id, page, fetchChapters])
+        if(chaptersVisible){
+            fetchChapters([project.id, page])
+        }
+        
+    }, [project.id, page, fetchChapters, chaptersVisible])
 
     useEffect(() => {
         if(chaptersData){
@@ -70,7 +73,7 @@ export function Project({ project }: ProjectProps) {
 
     return (
         <div 
-            className="project w-full flex flex-col border-b border-indigo-200"
+            className="project w-full flex flex-col border-b"
         >
             <div className='project_header flex justify-between items-center'>
                 <span className='project_title p-2 h-full w-full flex justify-center items-center relative'><p>{ project.title }</p></span>

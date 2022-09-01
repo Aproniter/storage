@@ -42,6 +42,18 @@ class User(AbstractUser):
         max_length=254,
         unique=True,
     )
+    phone = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+    )
+    other_contact = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+    ) 
     is_active = models.BooleanField(
         default=False
     )

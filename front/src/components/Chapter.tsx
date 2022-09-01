@@ -38,8 +38,9 @@ export function Chapter({ project, chapter }: ChapterProps) {
 
     return (
         <>
-         <div 
-            className="chapter w-full flex my-10 items-center border-b"
+        <div className="chapter w-full mb-2 px-2">
+        <div 
+            className="w-full flex my-10 items-center "
         >
             <h4 className="w-full">{chapter.title}</h4>
             <div className='tools flex'>
@@ -52,14 +53,31 @@ export function Chapter({ project, chapter }: ChapterProps) {
                 <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Показать/скрыть заметки'>
                     <svg
                         className={iconClasses.join(' ')}
-                        onClick={() => getNotes(project.id, chapter.id)}
+                        onClick={haveNotes ? () => getNotes(project.id, chapter.id): () => false}
                         xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
                     </svg>
                 </div>
             </div>
         </div>
-        {notesVisible && notes?.map(note => <Note note={note} key={note.id}/>)}
-        {docfilesVisible && docfiles?.map(docfile => <Docfile project={project} docfile={docfile} key={docfile.id}/>)}
+        {notesVisible && 
+        <ul className='overflow-y-scroll h-[100px] max-h-[400px] overflow-hidden'>
+        {notes?.map(note => 
+        <li key={note.id}>
+            <Note note={note}/>
+        </li>
+        )}
+        </ul>
+        }
+        {docfilesVisible && 
+        <ul className='overflow-y-scroll mb-2 h-[100px] max-h-[500px] overflow-hidden p-1 '>
+        {docfiles?.map(docfile => 
+        <li key={docfile.id}><Docfile project={project} docfile={docfile} /></li>
+        )}
+        </ul>
+        }
+        </div>
+        
+
         {(docfilesLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
         </>
        

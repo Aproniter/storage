@@ -47,11 +47,10 @@ export function Docfile({project, docfile}: DocfileProps) {
 
     async function getDocumentFile(docfile_id: number, filename: string) {
         return axios.get(
-            `${process.env.REACT_APP_BASE_URL}projects/${project.id}/get_file/?docfile=${docfile.id}`, 
+            `${process.env.REACT_APP_BASE_URL}projects/${project.id}/get_file/?docfile=${docfile_id}`, 
             {
                 responseType: 'blob',
                 headers: {
-                    'content-type': 'application/pdf',
                     'authorization': `Token ${token}`
                 }
             })
@@ -62,7 +61,7 @@ export function Docfile({project, docfile}: DocfileProps) {
     return (
         <>
         <div 
-            className="chapter w-full flex my-10 items-center border-b"
+            className="docfile px-2 w-full flex my-1 items-center border-b"
         >
             <h4 className="w-full">{docfile.title}</h4>
             <div className='tools flex'>
@@ -99,4 +98,3 @@ export function Docfile({project, docfile}: DocfileProps) {
         </>
     )
 }
-// .sort((a,b) => a.id - b.id)
