@@ -18,8 +18,6 @@ interface DocfileProps {
 
 export function Docfile({project, docfile}: DocfileProps) {
     const haveNotes = (docfile.notes && docfile.notes.length > 0);
-    const iconColorClassName = haveNotes ? 'fill-red-500' : 'fill-grey-500';
-    const iconClasses = ["w-8 h-8", iconColorClassName];
     const [images, setImages] = useState<IImage[]>([]);
     const [imagesVisible, setImagesVisible] = useState(false);
     const [notesVisible, setNotesVisible] = useState(false);
@@ -65,21 +63,24 @@ export function Docfile({project, docfile}: DocfileProps) {
         >
             <h4 className="w-full">{docfile.title}</h4>
             <div className='tools flex'>
-                <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Предпросмотр'>
+                <div className="tool p-1 hover:shadow shadow-2xl items-center flex flex-col" data-tooltip='Предпросмотр'>
+                    <span className='text-xs mb-1'>предпросмотр</span>
                     <svg
                         className='w-8 h-8'
                         onClick={() => getPreview(project.id, docfile.id)}
                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="512" height="512"><g id="_01_align_center" data-name="01 align center"><path d="M24,22.586l-6.262-6.262a10.016,10.016,0,1,0-1.414,1.414L22.586,24ZM10,18a8,8,0,1,1,8-8A8.009,8.009,0,0,1,10,18Z"/></g>
                     </svg>
                 </div>
-                <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Показать/скрыть заметки'>
+                {haveNotes && <div data-tooltip='Показать/скрыть' className='p-1 hover:shadow shadow-2xl items-center flex flex-col'>
+                    <span className='text-xs mb-1'>заметки</span>
                     <svg
-                        className={iconClasses.join(' ')}
+                        className="w-8 h-8 fill-red-500"
                         onClick={() => getNotes(project.id, docfile.id)}
                         xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="512" height="512"><path d="M20,0H4A4,4,0,0,0,0,4V16a4,4,0,0,0,4,4H6.9l4.451,3.763a1,1,0,0,0,1.292,0L17.1,20H20a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,16a2,2,0,0,1-2,2H17.1a2,2,0,0,0-1.291.473L12,21.69,8.193,18.473h0A2,2,0,0,0,6.9,18H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2H20a2,2,0,0,1,2,2Z"/><path d="M7,7h5a1,1,0,0,0,0-2H7A1,1,0,0,0,7,7Z"/><path d="M17,9H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/><path d="M17,13H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2Z"/>
                     </svg>
-                </div>
-                <div className="tool p-1 hover:shadow shadow-2xl" data-tooltip='Скачать документ'>
+                </div>}
+                <div className="tool p-1 hover:shadow shadow-2xl items-center flex flex-col" data-tooltip='Скачать документ'>
+                    <span className='text-xs mb-1'>скачать</span>
                     <svg 
                         className='w-8 h-8'
                         onClick={() => getDocumentFile(docfile.id, docfile.title)}
@@ -88,7 +89,7 @@ export function Docfile({project, docfile}: DocfileProps) {
                 </div>
             </div>
         </div>
-        {notesVisible && notes?.map(note => <Note note={note} key={note.id}/>)}
+        {notesVisible && <div className='notes m-2'>{notes?.map(note => <Note note={note} key={note.id}/>)}</div>}
         {(imagesLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
         {imagesVisible && images && images.length > 0 && <Slider {...settings}>
                             {[...images].sort((a,b) => a.id - b.id).map((image) => (

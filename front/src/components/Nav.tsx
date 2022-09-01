@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Link, useNavigate, } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { authSlice } from "../store/slices/authSlice";
@@ -7,16 +6,10 @@ export function Nav() {
     const isAuth = useAppSelector(state => state.auth.isAuth)
     const dispatch = useAppDispatch()
     const navigate = useNavigate();
-    const token = useAppSelector(state => state.auth.token);
+
     
     const signoutHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
-        axios.post(
-            `${process.env.REACT_APP_BASE_URL}logout/`, 
-            {
-                headers: {
-                    'authorization': `Token ${token}`
-                }
-            });
+        
         dispatch(authSlice.actions.signout());
         navigate('/', { replace: false });
     }

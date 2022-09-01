@@ -39,6 +39,15 @@ export interface INote {
     docfile: string;
 }
 
+export interface ISendNote {
+    title?:string;
+    text?:string;
+    project_id?:number;
+    chapter_id?:number;
+    docfile_id?:number;
+    author_id?:number;
+}
+
 export interface IImage {
     id: number;
     path: string;

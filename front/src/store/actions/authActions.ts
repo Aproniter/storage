@@ -8,6 +8,14 @@ const baseUrl = process.env.REACT_APP_BASE_URL || ''
 interface AuthResponse {
     token: string
     detail?: string
+    user: {
+        email: string
+        first_name: string
+        id: number
+        last_name: string
+        username: string
+    }
+
 }
 
 interface AuthData {

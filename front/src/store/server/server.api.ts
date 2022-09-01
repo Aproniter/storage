@@ -1,6 +1,6 @@
 import { BaseQueryFn, createApi, FetchArgs, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from '..'
-import { IDocfile, IImage, INote, ServerResponse } from '../../models'
+import { IDocfile, IImage, INote, ISendNote, ServerResponse } from '../../models'
 
 export interface CustomError {
     'status': number,
@@ -28,14 +28,12 @@ export const serverApi = createApi({
                 url: `projects/?page=${page}`,
             }),
             keepUnusedDataFor: 100,
-            // transformResponse: (response: ServerResponse<IProject>) => response.results.items
         }),
         getProjectChapters: build.query<ServerResponse<any>, number[]>({
             query: (params: number[]) => ({
                 url: `projects/${params[0]}/get_chapters/?page=${params[1]}`
             }),
             keepUnusedDataFor: 100,
-            // transformResponse: (response: ServerResponse<IChapter>) => response.results.items,
         }),
         getProjectNotes: build.query<INote[], number>({
             query: (project: number) => ({
@@ -71,6 +69,13 @@ export const serverApi = createApi({
             }),
             keepUnusedDataFor: 100,
             transformResponse: (response: ServerResponse<IImage>) => response.results.items
+        }),
+        sendNote: build.mutation<INote, Partial<ISendNote>>({
+            query: (body) => ({
+                url: `notes/`,
+                method: 'POST',
+                body
+            }),
         })
     })
 })
@@ -79,5 +84,5 @@ export const {
     useGetProjectsQuery, useLazyGetProjectsQuery,
     useLazyGetProjectChaptersQuery, useLazyGetProjectNotesQuery,
     useLazyGetChapterNotesQuery, useLazyGetDocfilesQuery,
-    useLazyGetPreviewQuery, useLazyGetDocfileNotesQuery
+    useLazyGetPreviewQuery, useLazyGetDocfileNotesQuery, useSendNoteMutation
 } = serverApi

@@ -23,7 +23,7 @@ from docs.models import Chapter, Project, Note, Document
 from .services import get_images_from_pdf
 from users.models import User
 from .permissions import (
-    AdminOwnerEditorOrViewerReadOnly
+    AdminOwnerEditorOrViewerReadOnly, AllSendNotes
 )
 
 from .pagination import CustomPageNumberPagination
@@ -87,6 +87,51 @@ def activate(request):
     user.is_active = True
     user.save()
     return Response(request.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllSendNotes])
+def send_note(request):
+    note, created = Note.objects.get_or_create(
+        title=request.data.get('title'),
+        text=request.data.get('text'),
+        author=request.user,
+        note_type=str(request.user.groups.first().id)
+    )
+    if 'project_id' in request.data:
+        try:
+            project = Project.objects.get(
+                pk=request.data.get('project_id')
+            )
+            project.notes.add(note)
+        except:
+            return Response(
+                {'detail': 'Проект не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    if 'chapter_id' in request.data:
+        try:
+            chapter = Chapter.objects.get(
+                pk=request.data.get('chapter_id')
+            )
+            chapter.notes.add(note)
+        except:
+            return Response(
+                {'detail': 'Раздел не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    if 'docfile_id' in request.data:
+        try:
+            docfile = Document.objects.get(
+                pk=request.data.get('docfile_id')
+            )
+            docfile.notes.add(note)
+        except:
+            return Response(
+                {'detail': 'Документ не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    return Response(request.data, status=status.HTTP_201_CREATED)
 
 
 class ProjectViewSet(ReadOnlyModelViewSet):

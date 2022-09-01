@@ -8,22 +8,24 @@
 [data-tooltip]::after {
 content: attr(data-tooltip);
 position: absolute;
-width: 300px;
+width: auto;
 right: 0; top: 0;
-background: #3989c9;
+background: #869bac;
 color: #fff;
+font-size: 0.85rem;
 padding: 0.5em;
 box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 pointer-events: none;
 opacity: 0;
 transition: 1s;
+z-index: 100;
 } 
 [data-tooltip]:hover::after {
 opacity: 1;
 top: 2em;
 }
 
-.project_header span::after {
+/* .project_header span::after {
     width: 1px;
     content: "";
     height: 50%;
@@ -31,10 +33,10 @@ top: 2em;
     position: absolute;
     right: 0;
     top: 25%;
-}
+} */
 
 .tool {
-    margin: 0 5px;
+    margin: 5px;
 }
 
 .slide {
@@ -113,7 +115,7 @@ top: 2em;
     animation: downloading-spin 1.2s linear infinite;
 }
 
-.note p {
+/* .note p {
     width: 100%;
     text-align: center;
-}
+} */

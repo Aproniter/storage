@@ -4,7 +4,7 @@ from rest_framework.routers import SimpleRouter
 from knox import views as knox_views
 
 from .views import (
-    ProjectViewSet, LoginView, registration, activate
+    ProjectViewSet, LoginView, registration, activate, send_note
 )
 
 app_name = 'api'
@@ -31,4 +31,9 @@ urlpatterns = [
         activate,
         name='activate'
     ),
+    path(
+        'notes/',
+        send_note,
+        name='send_note'
+    )
 ]
