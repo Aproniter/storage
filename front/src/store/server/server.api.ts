@@ -76,7 +76,18 @@ export const serverApi = createApi({
                 method: 'POST',
                 body
             }),
-        })
+        }),
+        deleteNote: build.mutation<ServerResponse<any>, number[]>({
+            query(params){
+                return{
+                    url: `projects/${params[0]}/delete_note`,
+                    method: 'DELETE',
+                    body: {
+                        'note_id':params[1]
+                    }
+                }
+            },
+        }),
     })
 })
 
@@ -84,5 +95,6 @@ export const {
     useGetProjectsQuery, useLazyGetProjectsQuery,
     useLazyGetProjectChaptersQuery, useLazyGetProjectNotesQuery,
     useLazyGetChapterNotesQuery, useLazyGetDocfilesQuery,
-    useLazyGetPreviewQuery, useLazyGetDocfileNotesQuery, useSendNoteMutation
+    useLazyGetPreviewQuery, useLazyGetDocfileNotesQuery, useSendNoteMutation,
+    useDeleteNoteMutation
 } = serverApi

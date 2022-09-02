@@ -28,6 +28,9 @@ from .permissions import (
 
 from .pagination import CustomPageNumberPagination
 
+from logger import logger
+
+logger = logger.get_logger(__name__)
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
@@ -134,6 +137,23 @@ def send_note(request):
     return Response(request.data, status=status.HTTP_201_CREATED)
 
 
+# @api_view(['DELETE'])
+# @permission_classes([AdminOwnerEditorOrViewerReadOnly])
+# def delete_note(request, pk):
+#     project = get_object_or_404(
+#         Project,
+#         id=request.data.get('project')['id']
+#     )
+#     check_object_permissions(request, project)
+#     note = get_object_or_404(
+#         Note,
+#         id=pk
+#     )
+#     print(note)
+#     # project = Project.objects.filter
+#     return Response(request.data, status=status.HTTP_204_NO_CONTENT)
+
+
 class ProjectViewSet(ReadOnlyModelViewSet):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProjectSerializer
@@ -213,7 +233,6 @@ class ProjectViewSet(ReadOnlyModelViewSet):
                 'items': serializer.data,
                 'count': data_count
             }
-            
         }
         return Response(response, status=status.HTTP_200_OK)
 
@@ -293,6 +312,28 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         response['Content-Disposition'] = f'attachment; filename="{document.title}";'
         return response
 
+    @action(
+        detail=True,
+        methods=['DELETE'],
+        url_name='delete_note',
+        permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+    )
+    def delete_note(self, request, pk):
+        logger.debug('delete note')
+        project = get_object_or_404(
+            Project,
+            id=pk
+        )
+        self.check_object_permissions(request, project)
+        note = get_object_or_404(
+            Note,
+            id=request.data.get('note_id')
+        )
+        project.notes.remove(note)
+        if note.projects.count() == 0:
+            note.delete()
+        return Response(request.data, status=status.HTTP_204_NO_CONTENT)
+
 
 class LoginView(KnoxLoginView):
     permission_classes = (AllowAny,)
@@ -310,6 +351,7 @@ class LoginView(KnoxLoginView):
                 {'detail': 'Пользователь не найден.'},
                 status=status.HTTP_404_NOT_FOUND
             )
+        
         if not check_password(
             serializer.validated_data.get('password'), user.password
         ):

@@ -47,13 +47,11 @@ export function AuthPage(){
                 } else{
                     setErrorMessage(e.response.data)
                 }
-                
             }
-            
         } else {
             alert('Заполните данные')
         }
-        
+
     }
 
     if(isAuth){

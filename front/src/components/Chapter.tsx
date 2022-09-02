@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IChapter, IProject} from '../models';
 import { Note } from './Note';
 import { Docfile } from './Docfile';
@@ -12,14 +12,13 @@ interface ChapterProps {
 };
 
 export function Chapter({ project, chapter }: ChapterProps) {
-    const haveNotes = chapter.notes.length > 0;
     const [notesVisible, setNotesVisible] = useState(false);
+    const [haveNotes, setHaveNotes] = useState(project.notes.length > 0)
     const [docfilesVisible, setDocfilesVisible] = useState(false);
     const [noteFormVisible, setNoteFormVisible] = useState(false)
-
+    const [needNotesUpdate, setNeedNotesUpdate] = useState(false)
     const [fetchNotes, {isLoading:notesLoading, data:notes}] = useLazyGetChapterNotesQuery()
-    const [fetchDocfiles, {isLoading:docfilesLoading, data:docfiles}] = useLazyGetDocfilesQuery()
-
+    const [fetchDocfiles, {isLoading:docfilesLoading, data:docfiles}] = useLazyGetDocfilesQuery()    
     const getDocfiles = (project_id: number, chapter_id: number) => {
         if(!docfilesVisible){
             fetchDocfiles([project_id, chapter_id])
@@ -34,6 +33,16 @@ export function Chapter({ project, chapter }: ChapterProps) {
         setNotesVisible (prev => !prev)
     }
 
+    useEffect(() => {
+        if(needNotesUpdate){
+            setTimeout(() => {
+                fetchNotes([project.id, chapter.id])
+            }, 100);
+            setHaveNotes(notes ? notes.length > 0: false)
+            setNeedNotesUpdate(false)
+            return () => clearTimeout();
+        }
+      }, [needNotesUpdate, fetchNotes, project.id, chapter.id, notes]);
 
 
     return (
@@ -79,12 +88,12 @@ export function Chapter({ project, chapter }: ChapterProps) {
                 </div>
             </div>
         </div>
-        {noteFormVisible && <NoteForm parent={{'chapter_id':chapter.id}} setNoteFormVisible={setNoteFormVisible} fetchNotes={fetchNotes}/>}
-        {notesVisible && 
+        {noteFormVisible && <NoteForm parent={{'chapter_id':chapter.id}} updateNotes={setNeedNotesUpdate} setNoteFormVisible={setNoteFormVisible}/>}
+        {notesVisible && haveNotes &&
         <ul className='overflow-y-scroll h-[200px] max-h-[400px] overflow-hidden p-1 border'>
         {notes?.map(note => 
         <li key={note.id}>
-            <Note note={note}/>
+            <Note note={note} project={project} updateNotes={setNeedNotesUpdate}/>
         </li>
         )}
         </ul>

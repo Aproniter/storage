@@ -14,6 +14,7 @@ interface AuthResponse {
         id: number
         last_name: string
         username: string
+        role:string
     }
 
 }
@@ -35,9 +36,11 @@ export const signin = (data: AuthData) => {
             } else {
                 response = await axios.post<AuthResponse>(baseUrl+'login/', data);
             }
+            
             dispatch(authSlice.actions.signin({
                 token: response.data.token,
-                error: response.data.detail
+                error: response.data.detail,
+                role: response.data.user.role
             }))
         } catch (e) {
             throw e;

@@ -40,12 +40,18 @@ export interface INote {
 }
 
 export interface ISendNote {
+    id?:number;
     title?:string;
     text?:string;
     project_id?:number;
     chapter_id?:number;
     docfile_id?:number;
     author_id?:number;
+}
+
+export interface IDeleteNote {
+    note:INote;
+    project:IProject
 }
 
 export interface IImage {

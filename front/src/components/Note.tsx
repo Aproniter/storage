@@ -1,13 +1,22 @@
 import { useState } from 'react';
-import { INote } from '../models'
+import { INote, IProject } from '../models'
+import { useDeleteNoteMutation } from '../store/server/server.api';
 
 interface NoteProps {
     note: INote
+    project: IProject
+    updateNotes: any
 }
 
-export function Note({ note }: NoteProps) {
+export function Note({ note, project, updateNotes }: NoteProps) {
     const [textVisible, setTextVisible] = useState(false);
-    // const isOwner = 
+    const role = sessionStorage.getItem('role')
+    const [deleteNote] = useDeleteNoteMutation()
+
+    function deleteHandler(){
+        deleteNote([project.id, note.id])
+        updateNotes(true)
+    }
 
     return (
         <>
@@ -24,11 +33,12 @@ export function Note({ note }: NoteProps) {
                     <p>{note.note_type}</p>
                     <p>{note.updated_at}</p>
                 </div>
-                <span
+                {role !== 'user' && <span
                     className='delete-note border p-1 cursor-pointer rounded'
+                    onClick={() => deleteHandler()}
                 >
                     Удалить
-                </span>
+                </span>}
             </div>
             {textVisible && <p className='mb-2 bg-white text-start p-1'>{note.text}</p>}
         </div>

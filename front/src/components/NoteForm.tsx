@@ -5,8 +5,8 @@ import { useSendNoteMutation } from "../store/server/server.api";
 
 interface NoteFormProps{
     parent:ISendNote,
-    setNoteFormVisible:any,
-    fetchNotes: any
+    updateNotes: any
+    setNoteFormVisible: any
 }
 
 
@@ -30,18 +30,19 @@ export function NoteForm(props:NoteFormProps) {
         } else {
             alert('Заполните данные')
         }
+        props.updateNotes(true)
         props.setNoteFormVisible(false)
-        switch (props.parent){
-            case('project_id'):
-                props.fetchNotes(props.parent.project_id);
-                break;
-            case('chapter_id'):
-                props.fetchNotes(props.parent.project_id);
-                break;
-            case('docfile_id'):
-                props.fetchNotes(props.parent.project_id);
-                break;
-        }
+        // switch (props.parent){
+        //     case('project_id'):
+        //         props.fetchNotes(props.parent.project_id);
+        //         break;
+        //     case('chapter_id'):
+        //         props.fetchNotes(props.parent.chapter_id);
+        //         break;
+        //     case('docfile_id'):
+        //         props.fetchNotes(props.parent.docfile_id);
+        //         break;
+        // }
         
     }
 
