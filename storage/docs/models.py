@@ -153,7 +153,7 @@ class Note(models.Model):
     class Meta:
         verbose_name = 'Заметка'
         verbose_name_plural = 'Заметки'
-        ordering = ['title']
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title

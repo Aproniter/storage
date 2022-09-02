@@ -6,6 +6,7 @@ import { useSendNoteMutation } from "../store/server/server.api";
 interface NoteFormProps{
     parent:ISendNote,
     setNoteFormVisible:any,
+    fetchNotes: any
 }
 
 
@@ -14,7 +15,7 @@ export function NoteForm(props:NoteFormProps) {
     const [sendNote] = useSendNoteMutation()
     const [form_text_value, setFormTextValue] = useState('')
     const [form_title_value, setFormTitleValue] = useState('')
-    const isFormValid = () => form_text_value !== ''
+    const isFormValid = () => form_text_value && form_title_value
 
     const submitHandler = async (event: React.FormEvent) => {
         event.preventDefault()
@@ -30,6 +31,18 @@ export function NoteForm(props:NoteFormProps) {
             alert('Заполните данные')
         }
         props.setNoteFormVisible(false)
+        switch (props.parent){
+            case('project_id'):
+                props.fetchNotes(props.parent.project_id);
+                break;
+            case('chapter_id'):
+                props.fetchNotes(props.parent.project_id);
+                break;
+            case('docfile_id'):
+                props.fetchNotes(props.parent.project_id);
+                break;
+        }
+        
     }
 
 
