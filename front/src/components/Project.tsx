@@ -12,7 +12,6 @@ interface ProjectProps {
 }
 
 export function Project({ project }: ProjectProps) {
-    const [haveNotes, setHaveNotes] = useState(project.notes.length > 0)
     const [chaptersVisible, setChaptersVisible] = useState(false)
     const [notesVisible, setNotesVisible] = useState(false)
     const [noteFormVisible, setNoteFormVisible] = useState(false)
@@ -37,16 +36,14 @@ export function Project({ project }: ProjectProps) {
         if(needNotesUpdate){
             setTimeout(() => {
                 fetchNotes(project.id);
-                setHaveNotes(notes ? notes.length > 0: false)
             }, 100);
             
             setNeedNotesUpdate(false)
-            console.log(notes)
         }
       }, [needNotesUpdate, fetchNotes, project.id, notes]);
 
     const getNotes = (project_id: number) => {
-        if(!notesVisible && haveNotes){
+        if(!notesVisible){
             fetchNotes(project_id)
         }
         setNotesVisible (prev => !prev)
@@ -123,8 +120,8 @@ export function Project({ project }: ProjectProps) {
                 
             </div>
             {noteFormVisible && <NoteForm parent={{'project_id':project.id}} updateNotes={setNeedNotesUpdate} setNoteFormVisible={setNoteFormVisible}/>}
-            {notesVisible && haveNotes &&
-            <ul className='overflow-y-scroll h-[200px] max-h-[400px] overflow-hidden p-1 border'>
+            {notesVisible && 
+            <ul className='overflow-y-scroll max-h-[400px] overflow-hidden px-1'>
             {notes?.map(note => 
             <li key={note.id}>
                 <Note note={note} project={project} updateNotes={setNeedNotesUpdate}/>
