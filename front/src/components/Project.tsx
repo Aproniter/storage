@@ -121,7 +121,7 @@ export function Project({ project }: ProjectProps) {
             </div>
             {noteFormVisible && <NoteForm parent={{'project_id':project.id}} updateNotes={setNeedNotesUpdate} setNoteFormVisible={setNoteFormVisible}/>}
             {notesVisible && 
-            <ul className='overflow-y-scroll max-h-[400px] overflow-hidden px-1'>
+            <ul className='overflow-y-scroll max-h-[400px] overflow-hidden p-1'>
             {notes?.map(note => 
             <li key={note.id}>
                 <Note note={note} project={project} updateNotes={setNeedNotesUpdate}/>

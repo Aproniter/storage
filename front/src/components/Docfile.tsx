@@ -74,6 +74,7 @@ export function Docfile({project, docfile}: DocfileProps) {
         >
             <div className="docfile px-2 w-full flex my-1 items-center ">
                 <h4 className="w-full">{docfile.title}</h4>
+                <p className="w-full">{docfile.updated_at}</p>
                 <div className='docfiles_buttons p-2 w-full flex justify-end'>
                     <div className="p-1 hover:shadow shadow-2xl mr-1 ">
                         <span 
@@ -104,7 +105,7 @@ export function Docfile({project, docfile}: DocfileProps) {
             <div className="px-2 w-full my-1 ">
             {noteFormVisible && <NoteForm parent={{'docfile_id':docfile.id}} updateNotes={setNeedNotesUpdate} setNoteFormVisible={setNoteFormVisible}/>}
             {notesVisible &&
-                <ul className='overflow-y-scroll h-[200px] max-h-[400px] overflow-hidden p-1 border'>
+                <ul className='overflow-y-scroll max-h-[400px] overflow-hidden p-1'>
                 {notes?.map(note => 
                 <li key={note.id}>
                     <Note note={note} project={project} updateNotes={setNeedNotesUpdate}/>

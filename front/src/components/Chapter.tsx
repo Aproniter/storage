@@ -72,7 +72,7 @@ export function Chapter({ project, chapter }: ChapterProps) {
         </div>
         {noteFormVisible && <NoteForm parent={{'chapter_id':chapter.id}} updateNotes={setNeedNotesUpdate} setNoteFormVisible={setNoteFormVisible}/>}
         {notesVisible && 
-        <ul className='overflow-y-scroll max-h-[400px] overflow-hidden px-1 border'>
+        <ul className='overflow-y-scroll max-h-[400px] overflow-hidden p-1'>
         {notes?.map(note => 
         <li key={note.id}>
             <Note note={note} project={project} updateNotes={setNeedNotesUpdate}/>
@@ -81,7 +81,7 @@ export function Chapter({ project, chapter }: ChapterProps) {
         </ul>
         }
         {docfilesVisible && 
-        <ul className='overflow-y-scroll mb-2 max-h-[500px] overflow-hidden p-1 border'>
+        <ul className='overflow-y-scroll mb-2 max-h-[500px] overflow-hidden py-1'>
         {docfiles?.map(docfile => 
         <li key={docfile.id}><Docfile project={project} docfile={docfile} /></li>
         )}

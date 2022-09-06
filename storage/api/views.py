@@ -137,23 +137,6 @@ def send_note(request):
     return Response(request.data, status=status.HTTP_201_CREATED)
 
 
-# @api_view(['DELETE'])
-# @permission_classes([AdminOwnerEditorOrViewerReadOnly])
-# def delete_note(request, pk):
-#     project = get_object_or_404(
-#         Project,
-#         id=request.data.get('project')['id']
-#     )
-#     check_object_permissions(request, project)
-#     note = get_object_or_404(
-#         Note,
-#         id=pk
-#     )
-#     print(note)
-#     # project = Project.objects.filter
-#     return Response(request.data, status=status.HTTP_204_NO_CONTENT)
-
-
 class ProjectViewSet(ReadOnlyModelViewSet):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProjectSerializer
