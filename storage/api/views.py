@@ -140,7 +140,8 @@ def send_note(request):
 class ProjectViewSet(ReadOnlyModelViewSet):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, AdminOwnerEditorOrViewerReadOnly]
+    # permission_classes = [IsAuthenticated, AdminOwnerEditorOrViewerReadOnly]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -163,7 +164,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_chapters',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def get_chapters(self, request, pk):
         obj = get_object_or_404(
@@ -185,7 +187,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_notes',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def get_notes(self, request, pk):
         obj = get_object_or_404(
@@ -223,7 +226,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_docfiles',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def get_docfiles(self, request, pk):
         obj = get_object_or_404(
@@ -252,7 +256,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_preview',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def get_preview(self, request, pk):
         obj = get_object_or_404(
@@ -279,7 +284,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['get'],
         url_name='get_file',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly]
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def get_file(self, request, pk):
         obj = get_object_or_404(
@@ -299,7 +305,8 @@ class ProjectViewSet(ReadOnlyModelViewSet):
         detail=True,
         methods=['DELETE'],
         url_name='delete_note',
-        permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        # permission_classes=[AdminOwnerEditorOrViewerReadOnly],
+        permission_classes=[AllowAny],
     )
     def delete_note(self, request, pk):
         logger.debug('delete note')
