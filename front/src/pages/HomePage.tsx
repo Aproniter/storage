@@ -74,10 +74,9 @@ export function HomePage(){
               setErrMsg(error.data.detail)
             }
           }
-        } else {
-          setErrMsg('')
         }
-        
+      } else {
+        setErrMsg('')
       }
     }, [error]);
 

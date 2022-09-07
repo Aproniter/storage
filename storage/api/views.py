@@ -140,7 +140,7 @@ def send_note(request):
 class ProjectViewSet(ReadOnlyModelViewSet):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProjectSerializer
-    permission_classes = [AdminOwnerEditorOrViewerReadOnly]
+    permission_classes = [IsAuthenticated, AdminOwnerEditorOrViewerReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_authenticated:

@@ -129,9 +129,9 @@ export function Project({ project }: ProjectProps) {
             )}
             </ul>
             }
+            {(nextPage || prevPage) && chaptersVisible && <Pagination pageNumber={page} pages={pages()} setPage={setPage}/>}
             {(chaptersLoading || notesLoading) &&  <div className="flex w-full justify-center"><Downloading/></div>}
             {chaptersVisible && chapters && chapters.length > 0 && <div className='chapters m-2'>{chapters.map((chapter:IChapter) => <Chapter project={project} chapter={chapter} key={chapter.id}/>)}</div>}
-            {(nextPage || prevPage) && chaptersVisible && <Pagination pageNumber={page} pages={pages()} setPage={setPage}/>}
         </div>
         
     )
