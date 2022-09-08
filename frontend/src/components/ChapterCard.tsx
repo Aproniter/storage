@@ -1,4 +1,6 @@
+import saveAs from "file-saver"
 import { useEffect, useState } from "react"
+import axios from "../axios"
 import { useAppDispatch, useAppSelector } from "../hooks/redux"
 import { IChapter } from "../models"
 import { fetchDocfiles } from "../store/actions/docfileActions"
@@ -23,6 +25,26 @@ export function ChapterCard({ project_id, chapter }:ChapterCardProps) {
         setDocfilesVisible(prev => !prev)
     }
 
+    async function getDocumentFile(docfile_id: number, filename: string) {
+        await axios.get(
+            `${process.env.REACT_APP_BASE_URL}projects/${project_id}/get_file/?docfile=${docfile_id}`, 
+            {
+                responseType: 'blob',
+                // headers: {
+                //     'authorization': `Token ${1}`
+                // }
+            })
+            .then(response => new Blob([response.data]))
+            .then(blob => saveAs(blob, filename))
+            .catch((response) => {
+                if(response.response.status === 404){
+                    alert("Файл отсутствует.")
+                } else {
+                    console.error(response.message)
+                }
+        });
+    };
+
     useEffect(() => {
         if(docfilesVisible){
             setchapterClasses(["card", "active-card"])
@@ -40,31 +62,33 @@ export function ChapterCard({ project_id, chapter }:ChapterCardProps) {
             {error && <p className="error-block">{error}</p>}
             {docfilesVisible && (chapter.id === chapter_id) && 
             <table className="card-list">
-                <tr className="card-table-header">
-                    <td className="card-table-title">Имя файла</td>
-                    <td className="card-table-data">Дата обновления</td>
-                    <td className="card-table-tools"></td>
-                </tr>
-            {docfiles.map(
-                    docfile => 
-                    <tr className="card-list-item" key={docfile.id}>
-                        <td className="card-table-title">{docfile.title}</td>
-                        <td className="card-table-data">{docfile.updated_at}</td>
-                        <td className="card-table-tools">
-                            <span className="card-table-tool">Заметки</span>
-                            <span className="card-table-tool">Добавить заметку</span>
-                            <span className="card-table-tool">Предпросмотр</span>
-                            <span className="card-table-tool">Скачать</span>
-                        </td>
+                <thead className="card-table-header">
+                    <tr>
+                        <th className="card-table-title">Имя файла</th>
+                        <th className="card-table-data">Дата обновления</th>
+                        <th className="card-table-tools"></th>
                     </tr>
-            )}
+                </thead>
+                <tbody>
+                    {docfiles.map(
+                        docfile => 
+                        <tr className="card-list-item" key={docfile.id}>
+                            <td className="card-table-title">{docfile.title}</td>
+                            <td className="card-table-data">{docfile.updated_at}</td>
+                            <td className="card-table-tools">
+                                <span className="card-table-tool">Заметки</span>
+                                <span className="card-table-tool">Добавить заметку</span>
+                                <span className="card-table-tool">Предпросмотр</span>
+                                <span 
+                                    className="card-table-tool"
+                                    onClick={() => getDocumentFile(docfile.id, docfile.title)}
+                                >Скачать</span>
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
             </table>
             }
         </div>
     )
 }
-
-{/* <span>Заметки</span>
-<span>Добавить заметку</span>
-<span>Предпросмотр</span>
-<span>Скачать</span> */}

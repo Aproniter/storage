@@ -296,10 +296,13 @@ class ProjectViewSet(ReadOnlyModelViewSet):
             obj.documents.all(),
             id=request.GET.get('docfile', None)
         )
-        send_file = open(document.docfile,'rb')
-        response = FileResponse(send_file, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{document.title}";'
-        return response
+        try:
+            send_file = open(document.docfile,'rb')
+            response = FileResponse(send_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{document.title}";'
+            return response
+        except FileNotFoundError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(
         detail=True,

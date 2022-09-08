@@ -65,6 +65,25 @@ code {
   text-align: center;
   font-weight: 600;
   margin-bottom: 30px;
+  position: relative;
+}
+
+.active-card .card-title::after,
+.active-card .card-title::before{
+  transition: .35s all;
+  position: absolute;
+  right: 0;
+  top: 30%;
+  transform: rotate(45deg); 
+  content: '';
+  width: 25px;
+  height: 4px;
+  background-color: black;
+  border-radius: 3px;
+}
+
+.active-card .card-title::before{
+  transform: rotate(-45deg); 
 }
 
 .card:hover {
@@ -92,7 +111,11 @@ code {
 
 .card-table-tools {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
+}
+
+.card-table-data {
+  text-align: end;
 }
 
 .card-table-tool {
