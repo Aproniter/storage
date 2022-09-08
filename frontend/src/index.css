@@ -51,22 +51,66 @@ code {
   font-size: 2rem;
 }
 
-.project-card {
+.card {
   padding: 5px 10px;
   border: 1px solid rgba(63, 57, 57, 0.1);
   border-radius: 5px;
   margin-bottom: 5px;
   display: flex;
+  flex-direction: column;
   transition: .35s all;
 }
 
-.project-card:hover {
+.active-card .card-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.card:hover {
   background-color: rgba(164, 213, 219, 0.541);
+}
+
+.card-title {
+  margin: 5px;
   cursor: pointer;
 }
 
-.project-title {
-  margin: 5px;
+.card-list {
+  padding: 0%;
+  margin: 0%;
+}
+
+.card-header {
+  text-align: center;
+}
+
+.card-table-header,
+.card-list-item {
+  width: 100%;
+}
+
+.card-table-tools {
+  display: flex;
+  justify-content: end;
+}
+
+.card-table-tool {
+  padding: 5px;
+  border: 1px solid rgba(170, 206, 212, 0.418);
+  border-radius: 5px;
+  margin: 0 3px;
+  font-size: 12px;
+}
+
+.card-table-tool:hover {
+  background-color: rgba(96, 123, 131, 0.541);
+  color: white;
+  cursor: pointer;
+}
+
+th, td {
+  padding: 20px;
 }
 
 .pagination {

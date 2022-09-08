@@ -1,8 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import projectReducer from './slices/projectSlice'
+import chapterReducer from './slices/chapterSlice'
+import docfileReducer from './slices/docfileSlice'
 
 const rootReducer = combineReducers({
-    project: projectReducer
+    project: projectReducer,
+    chapter: chapterReducer,
+    docfile: docfileReducer,
 })
 
 

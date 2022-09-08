@@ -15,10 +15,10 @@ export function ProjectCard({ project }:ProjectCardProps) {
 
     return(
         <div 
-            className="project-card"
+            className="card"
             onClick={projectCardClickHandler}
         >
-            <p className="project-title">{project.title}</p>
+            <p className="card-title">{project.title}</p>
         </div>
     )
 }

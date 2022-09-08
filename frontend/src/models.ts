@@ -47,7 +47,7 @@ export interface IImage {
 export interface IDocfile{
     id:number;
     title: string;
-    chapter?: IChapter;
+    chapter: number;
     subchapter?: string;
     part?: string;
     book?: number;
@@ -65,6 +65,6 @@ export interface ListServerResponse<T> {
     }
     results: {
         count: number,
-        items: [];
+        items: T;
     }
 }
