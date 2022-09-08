@@ -12,9 +12,10 @@ export const fetchProjects = (page:number = 1) => {
                     params: { page }
                 }
             )
-            dispatch(projectSlice.actions.fetchingSuccess(
-                resp.data.results.items
-            ))
+            dispatch(projectSlice.actions.fetchingSuccess({
+                projects: resp.data.results.items,
+                total_count: resp.data.total_count,
+            }))
         } catch(e) {
             dispatch(projectSlice.actions.fetchError(e as Error))
         }

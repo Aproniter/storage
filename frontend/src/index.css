@@ -68,3 +68,25 @@ code {
 .project-title {
   margin: 5px;
 }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination li {
+  list-style-type: none;
+  margin: 0 5px;
+  padding: 5px;
+  border-radius: 25%;
+}
+
+.pagination li:hover {
+  cursor: pointer;
+  background-color: rgba(213, 223, 231, 0.651);
+}
+
+.active-page-pagination {
+  background-color: rgba(159, 189, 214, 0.651);
+}

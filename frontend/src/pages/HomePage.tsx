@@ -1,42 +1,34 @@
 import { ProjectCard } from "../components/ProjectCard";
 import { ProjectSearch } from "../components/ProjectSearch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { fetchProjects } from "../store/actions/projectActions";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { Downloading } from "../components/Downloading";
-import ReactPaginate from 'react-paginate';
+import { Pagination } from "../components/Pagination";
+
 
 export function HomePage(){
     const dispatch = useAppDispatch()
-    const {error, loading, projects} = useAppSelector(state => state.project)
+    const {error, loading, total_count, projects} = useAppSelector(state => state.project)
+    const [page, setPage] = useState(1)
+
+    const pageCount = Math.ceil(total_count / 5)
 
     useEffect(() => {
-        dispatch(fetchProjects())
-    }, [dispatch])
+        dispatch(fetchProjects(page))
+    }, [dispatch, page])
 
-    const handlePageClick = ({selected}: {select:number}) => {
-        console.log(event)
-    }
-
-    const pageCount = 2
 
     return(
         <div className="container">
             <ProjectSearch/>
             {loading && <Downloading/>}
             {error && <p className="error-block">{error}</p>}
+            {<Pagination pageCount={pageCount} setPage={setPage}/>}
             {projects.map(
                     project => 
                     <ProjectCard key={project.id} project={project}/>
             )}
-            <ReactPaginate
-                breakLabel="..."
-                nextLabel=">"
-                onPageChange={handlePageClick}
-                pageRangeDisplayed={5}
-                pageCount={pageCount}
-                previousLabel="<"
-            />
         </div>
     )
 }

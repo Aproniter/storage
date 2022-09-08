@@ -1,36 +1,36 @@
-import { IProject } from "../../models"
+import { IChapter } from "../../models"
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-interface ProjectState {
+interface ChapterState {
     loading: boolean
     error: string
-    projects: IProject[]
+    chapters: IChapter[]
     total_count: number
 }
 
-const initialState:ProjectState = {
+const initialState:ChapterState = {
     loading: false,
     error: '',
-    projects: [],
+    chapters: [],
     total_count: 0
 }
 
-interface ProjectPayload {
-    projects: IProject[],
+interface ChapterPayload {
+    chapters: IChapter[],
     total_count: number
 }
 
-export const projectSlice = createSlice({
-    name: 'project',
+export const chapterSlice = createSlice({
+    name: 'chapter',
     initialState,
     reducers: {
         fetching(state) {
             state.loading = true
             state.error = ''
         },
-        fetchingSuccess(state, action: PayloadAction<ProjectPayload>) {
+        fetchingSuccess(state, action: PayloadAction<ChapterPayload>) {
             state.loading = false
-            state.projects = action.payload.projects
+            state.chapters = action.payload.chapters
             state.total_count = action.payload.total_count
             state.error = ''
         },
@@ -41,4 +41,4 @@ export const projectSlice = createSlice({
     }
 })
 
-export default projectSlice.reducer
+export default chapterSlice.reducer
